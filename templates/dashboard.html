@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASYNCX | HCB - DASHBOARD</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --surface: #222222;
+            --card: #2a2a2a;
+            --card-hover: #2f2f2f;
+            --border: #333333;
+            --border-light: #3a3a3a;
+            --cyan: #00bcd4;
+            --cyan-dark: #0097a7;
+            --green: #4caf50;
+            --green-bright: #66bb6a;
+            --yellow: #ffc107;
+            --red: #f44336;
+            --orange: #ff9800;
+            --text: #e0e0e0;
+            --text-muted: #888888;
+            --text-dim: #666666;
+            --font-display: 'Orbitron', monospace;
+            --font-ui: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            --sidebar-w: 260px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-ui);
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #111111;
+            border-bottom: 1px solid var(--border);
+            height: 70px;
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr auto;
+            align-items: center;
+            padding: 0 1.5rem 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand {
+            padding: 0 1.5rem;
+            border-right: 1px solid var(--border);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .brand-name span { 
+            color: var(--cyan);
+            font-style: italic;
+        }
+
+        .brand-sub {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .event-label {
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .timer {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-header {
+            background: var(--cyan);
+            color: #111;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-header:hover { opacity: 0.75; }
+
+        .btn-logout {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover { color: var(--red); }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: calc(100vh - 70px);
+            width: 100%;
+        }
+
+        .sidebar {
+            background: #1e1e1e;
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            overflow-y: auto;
+        }
+
+        .team-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a8a9f, #1a5a6a);
+            border: 3px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .team-name {
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-inst {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .team-inst::before {
+            content: '|';
+            color: var(--cyan);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 8px;
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            text-align: left;
+            width: 100%;
+            border-bottom: 1px solid transparent;
+            transition: color 0.2s;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-item:hover { color: var(--text); }
+        .nav-item.highlight { color: var(--yellow); }
+        .nav-item.highlight:hover { color: #ffd54f; }
+
+        .stat-row {
+            padding: 10px 8px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-row strong {
+            color: var(--text);
+            margin-left: auto;
+        }
+
+        .main-content {
+            padding: 2rem 2rem;
+            background: var(--bg);
+            width: 100%;
+        }
+
+        .section-title {
+            font-family: var(--font-ui);
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            overflow-y: hidden; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: var(--text-muted);
+            padding: 10px 24px;
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn:hover { color: var(--text); }
+
+        .tab-btn.active {
+            color: #fff;
+            border-bottom-color: var(--cyan);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .challenge-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .challenge-card:hover {
+            border-color: #555;
+            background: var(--card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .challenge-card.solved-box {
+            border-color: var(--green);
+            opacity: 0.45;
+            filter: brightness(0.65); 
+            transition: all 0.3s ease; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 0, 0, 0.9) !important;
+        }
+
+        .card-cover {
+            width: 100%;
+            height: 160px;
+            background: #111;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .rec-indicator {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--red);
+            border: 1px solid var(--red);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+            z-index: 6;
+        }
+
+        .card-cover-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 50%, #1f3040 0%, #111 100%);
+            color: rgba(0,188,212,0.15);
+            font-size: 3rem;
+            font-family: var(--font-mono);
+        }
+
+        .solved-check {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            background: var(--green);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .card-body {
+            padding: 1.2rem 1.2rem 1rem;
+        }
+
+        .card-title {
+            font-family: var(--font-ui);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .card-label {
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+            font-family: var(--font-ui);
+        }
+
+        .card-desc .more {
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+
+        .btn-start {
+            display: block;
+            width: 100%;
+            background: var(--cyan);
+            color: #111;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            margin: 1rem 0 0.8rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-start:hover { opacity: 0.85; }
+
+        .card-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .pts-badge {
+            font-family: var(--font-ui);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--green-bright);
+        }
+
+        .pts-badge.solved { color: var(--text-dim); text-decoration: line-through; }
+
+        .btn-hint {
+            background: var(--yellow);
+            color: #111;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        .btn-hint:hover { opacity: 0.85; }
+        .btn-hint:disabled { opacity: 0.4; cursor: default; }
+
+        .flag-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-flag {
+            background: #1a1a1a;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 9px 12px;
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .input-flag::placeholder { color: var(--text-dim); }
+
+        .input-flag:focus {
+            outline: none;
+            border-color: var(--cyan);
+            color: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--green);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover { background: var(--green-bright); }
+
+        .hint-box {
+            margin-top: 0.6rem;
+            background: rgba(255, 152, 0, 0.05);
+            border: 1px dashed rgba(255, 152, 0, 0.3);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .hint-box .hint-label { color: var(--orange); font-weight: 700; }
+
+        .blur-hint {
+            filter: blur(5px);
+            user-select: none;
+            cursor: pointer;
+            transition: filter 0.3s;
+        }
+        .blur-hint.reveal { filter: blur(0); user-select: text; }
+
+        .footer-bar {
+            background: #111;
+            border-top: 1px solid var(--border);
+            padding: 14px 2rem;
+            text-align: center;
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-social { display: flex; gap: 12px; }
+
+        .footer-social a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover { color: var(--cyan); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px; right: 18px;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: #fff; }
+
+        .flash-container {
+            position: fixed;
+            top: 20px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            width: 90%; max-width: 380px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: center;
+            font-family: var(--font-ui);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .modal-arsenal .modal-content { max-width: 800px; }
+        
+        .decoder-box { background: var(--bg); border: 1px solid var(--border-light); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+        .decoder-controls { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+        
+        .btn-decode { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-family: var(--font-mono); font-size: 0.85rem;}
+        .btn-decode:hover { border-color: var(--cyan); color: var(--cyan); }
+        
+        .decoder-output { background: #0a0a0a; color: var(--green-bright); padding: 10px; border-radius: 4px; min-height: 50px; font-family: var(--font-mono); word-break: break-all; border: 1px solid #111;}
+        
+        .modal-arsenal-custom .decoder-box {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .modal-arsenal-custom .input-flag {
+            width: 100%;
+            background: #050505;
+            color: var(--neon-cyan, #00f2ff);
+            border: 1px solid #333;
+            padding: 14px;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.95rem;
+            border-radius: 4px;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-arsenal-custom .input-flag:focus {
+            border-color: var(--neon-cyan, #00f2ff);
+            box-shadow: 0 0 12px rgba(0, 242, 255, 0.15);
+        }
+
+        .modal-arsenal-custom .btn-decode {
+            background: #161616;
+            color: #aaa;
+            border: 1px solid #2d2d2d;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: var(--font-ui, sans-serif);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-arsenal-custom .btn-decode:hover {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: var(--neon-cyan, #00f2ff);
+            color: var(--neon-cyan, #00f2ff);
+            transform: translateY(-2px);
+        }
+
+        .modal-arsenal-custom .btn-clear {
+            background: rgba(244, 67, 54, 0.05);
+            color: #ff4444;
+            border: 1px dashed #ff4444;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: var(--font-ui, sans-serif);
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            margin-top: 5px;
+        }
+
+        .modal-arsenal-custom .btn-clear:hover {
+            background: #ff4444;
+            color: #000;
+            border-style: solid;
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .modal-arsenal-custom .decoder-output {
+            margin-top: 20px;
+            background: #050505;
+            border-left: 3px solid var(--neon-cyan, #00f2ff);
+            border-radius: 0 4px 4px 0;
+            padding: 15px;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.95rem;
+            color: #fff;
+            white-space: pre-wrap;
+            word-break: break-all;
+            min-height: 60px;
+        }
+
+        .modal-arsenal-custom .arsenal-card {
+            background: #111;
+            padding: 18px 15px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-arsenal-custom .arsenal-card:hover {
+            border-color: var(--neon-cyan, #00f2ff);
+            background: #161616;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-arsenal-custom .arsenal-icon {
+            width: 28px;
+            height: 28px;
+            fill: var(--neon-cyan, #00f2ff);
+            flex-shrink: 0;
+            transition: fill 0.3s, filter 0.3s;
+        }
+
+        .modal-arsenal-custom .arsenal-card:hover .arsenal-icon {
+            fill: #fff;
+            filter: drop-shadow(0 0 6px var(--neon-cyan, #00f2ff));
+        }
+
+        .modal-arsenal-custom .modal-content {
+            max-height: 85vh;
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-cyan, #00f2ff) #111;
+        }
+
+        .modal-arsenal-custom .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-arsenal-custom .modal-content::-webkit-scrollbar-track {
+            background: #0a0a0a; 
+            border-radius: 8px;
+            border: 1px solid #222;
+        }
+        .modal-arsenal-custom .modal-content::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan, #00f2ff); 
+            border-radius: 8px;
+        }
+        .modal-arsenal-custom .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #00acc1;
+        }
+
+        .video-shield-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; 
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden; 
+        }
+
+        #yt-player-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        .custom-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 6px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #ffffff; 
+        }
+
+        .btn-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor; 
+            transition: transform 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #666;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+        }
+
+        .btn-icon:hover svg {
+            transform: scale(1.1); 
+        }
+
+        .feed-status {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .avatar-option {
+            cursor: pointer;
+            width: 80px;  
+            height: 80px; 
+            border-radius: 50%;
+            padding: 4px;
+            background: transparent;
+            border: 3px solid var(--border-cyber, #333);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            filter: saturate(1.2);
+        }
+
+        .avatar-option:hover {
+            border-color: var(--neon-cyan) !important;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.6);
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+        .avatar-option { transition: all 0.2s ease; }
+
+        .sorteio-btn {
+            background: var(--text);
+            color: #111;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer; 
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+        }
+
+        .sorteio-btn:hover { 
+            opacity: 0.75; 
+        }
+
+        @media (min-width: 1400px) {
+            .workspace {
+                width: 100%;
+                grid-template-columns: var(--sidebar-w) 1fr;
+            }
+
+            .main-content {
+                padding: 3rem 4rem; 
+                width: 100%;
+            }
+
+            .section-title {
+                font-size: 2.6rem !important;
+                margin-bottom: 2rem;
+            }
+
+            .challenge-grid {
+                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+                gap: 2rem !important;
+            }
+
+            .challenge-card {
+                border-radius: 12px;
+            }
+
+            .card-cover {
+                height: 210px !important;
+            }
+
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .card-title {
+                font-size: 1.45rem !important; 
+                margin-bottom: 0.8rem;
+            }
+
+            .card-desc {
+                font-size: 1rem !important;
+                line-height: 1.6;
+            }
+
+            .pts-badge {
+                font-size: 1.6rem !important; 
+            }
+
+            .btn-start, .btn-submit {
+                padding: 14px !important;
+                font-size: 1.05rem !important;
+            }
+
+            .input-flag {
+                padding: 12px 16px !important;
+                font-size: 1rem !important;
+            }
+        }
+
+        .modal-content {
+            width: 94% !important;
+            max-width: 650px !important; 
+            max-height: 85vh !important;  
+            overflow-y: auto !important; 
+            margin: 30px auto !important;
+            padding: 1.5rem !important;
+        }
+
+        .modal-arsenal-custom .decoder-controls {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+            gap: 8px !important;
+        }
+        .modal-arsenal-custom .btn-decode {
+            flex: 1 1 calc(50% - 8px) !important;
+        }
+        .modal-arsenal-custom .btn-clear {
+            grid-column: 1 / -1 !important; 
+            margin-top: 5px !important;
+        }
+
+        .modal-arsenal-custom .arsenal-grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+        }
+        .modal-arsenal-custom .arsenal-card {
+            padding: 14px !important;
+        }
+
+        .docs-responsive-grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+        }
+
+        .docs-responsive-grid > div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            padding: 15px !important;
+        }
+
+        .docs-responsive-grid > div a {
+            width: 100% !important;
+            align-self: center !important;
+            margin-top: 8px !important;
+            text-align: center !important;
+            padding: 10px 0 !important;
+        }
+
+
+        @media (max-width: 900px) {
+            body { max-width: 100vw; overflow-x: hidden; }
+
+            .workspace { grid-template-columns: 1fr; }
+            .header { height: auto; grid-template-columns: 1fr; padding: 1rem; gap: 12px; }
+            .brand { border-right: none; padding: 0; align-items: center; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+            .header-center { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+            .header-actions { width: 100%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+
+            .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 1rem; }
+            .team-block { flex-direction: row; justify-content: flex-start; text-align: left; border-bottom: none; padding-bottom: 0; margin-bottom: 15px; }
+            .team-block .profile-card { text-align: left !important; display: flex; align-items: center; gap: 15px; width: 100%; }
+            .avatar-box { margin: 0 !important; width: 50px !important; height: 50px !important; }
+            .team-name { font-size: 1rem; }
+            .team-inst { font-size: 0.65rem; }
+
+            .sidebar-nav > div[style*="display: flex"] { flex-direction: row !important; gap: 5px !important; margin-bottom: 10px !important; }
+            .sidebar-nav > div > div { padding: 8px 4px !important; }
+            .sidebar-nav > div > div > strong { font-size: 1.1rem !important; }
+            .sidebar-nav > div > div > span { font-size: 0.55rem !important; }
+
+            .sidebar-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+            .nav-item { padding: 8px 5px; font-size: 0.8rem; text-align: center; justify-content: center; border: 1px solid var(--border-light); border-radius: 4px; }
+            .sidebar-nav > div.linha-divisoria { display: none; }
+            .sorteio-btn { grid-column: span 2; margin: 5px 0 !important; padding: 10px !important; font-size: 0.85rem; }
+
+            .main-content { padding: 1rem; max-width: 100vw; }
+            .challenge-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .challenge-card { width: 100%; max-width: 100%; }
+            .card-cover { height: 140px; }
+            .card-title { font-size: 1.05rem; }
+
+            .tab-bar { padding-bottom: 5px; margin-bottom: 1.5rem; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+            .tab-btn { font-size: 0.85rem; padding: 10px 15px; }
+
+            .footer-bar { flex-direction: column; gap: 10px; text-align: center; padding: 1rem; }
+            .footer-social { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <div class="brand-name">Asyn<span>X</span></div>
+            <div class="brand-sub">Hackathon Challenge Box</div>
+        </div>
+
+        <div class="header-center">
+            <span class="event-label">Evento</span>
+            <div class="timer" id="countdown"></div>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-header" onclick="openModal('modalTutorial')">Tutorial</button>
+            <a href="/logout" class="btn-logout" onclick="showLoader('Desconectando...')">[→ sair]</a>
+        </div>
+    </div>
+
+    <div class="workspace">
+
+        <div class="sidebar">
+            <div class="team-block">
+                <div class="profile-card" style="text-align: center;">
+                    
+                    <div class="avatar-box avatar-option" onclick="openModal('modalAvatar')" 
+                        style="cursor: pointer; width: 80px; height: 80px; margin: 0 auto 0.8rem auto; border-radius: 50%; border: 2px solid var(--neon-cyan); overflow: hidden; background-color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);">
+                        
+                        <img id="current-avatar" 
+                            src="{{ url_for('static', filename='img/avatars/' + team_avatar) }}" 
+                            alt="Team Badge" 
+                            style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
+                    </div>
+
+                    <h2 style="font-size: 1.2rem; margin-bottom: 4px; font-family: var(--font-display); letter-spacing: 1px;">
+                        {{ session['team_name'] if session else 'NOME TIME' }}
+                    </h2>
+                    <div class="team-inst" style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-family: var(--font-mono);">
+                        {{ institution_name }}
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="sidebar-nav">
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                    
+                    <div style="flex: 1; background: rgba(0, 242, 255, 0.05); border: 1px solid var(--neon-cyan); border-radius: 8px; padding: 12px 5px; text-align: center; box-shadow: inset 0 0 15px rgba(0, 242, 255, 0.05);">
+                        <span style="display: block; font-size: 0.65rem; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 2px; font-family: var(--font-mono); margin-bottom: 5px;">
+                            Resolvidos
+                        </span>
+                        <strong style="display: block; font-size: 1.4rem; color: #fff; font-family: var(--font-display);">
+                            {{ solved_ids|length if solved_ids else '0' }} / {{ all_challenges|length if all_challenges else '18' }}
+                        </strong>
+                    </div>
+
+                    <div style="flex: 1; background: rgba(0, 242, 255, 0.05); border: 1px solid var(--neon-cyan); border-radius: 8px; padding: 12px 5px; text-align: center; box-shadow: inset 0 0 15px rgba(0, 242, 255, 0.05);">
+                        <span style="display: block; font-size: 0.65rem; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 2px; font-family: var(--font-mono); margin-bottom: 5px;">
+                            Pontuação
+                        </span>
+                        <strong style="display: block; font-size: 1.4rem; color: #fff; font-family: var(--font-display);">
+                            {% set team_score = namespace(value=0) %}
+                            {% if ranking %}
+                                {% for r in ranking %}
+                                    {% if r.name == session['team_name'] %}
+                                        {% set team_score.value = r.score %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {{ team_score.value }} <span style="font-size: 0.8rem; color: #ffd700;">XP</span>
+                        </strong>
+                    </div>
+
+                </div>
+                    <button class="nav-item" onclick="openModal('modalPlacar')">Placar geral</button>
+                    <button class="nav-item" onclick="openModal('modalIntegrantes')">Equipe</button>
+                    <button class="nav-item" onclick="openModal('modalMaterial')">Documentos</button>                   
+                    <button class="nav-item" onclick="openModal('modalArsenal')">Ferramentas</button>
+                    <button class="nav-item" onclick="openModalDicas()">Mensagens</button>
+                    <button class="nav-item" onclick="openModal('modalCertificado')">Emitir Certificado</button>
+                    <button class="nav-item" onclick="openModal('modalSobre')">Sobre</button>
+                    <button onclick="toggleModalGlobal(true)" class="sorteio-btn">
+                        PREMIO EXCLUSIVO
+                    </button><br>
+                    <button onclick="toggleModalVotacao(true)" class="sorteio-btn" style="background: var(--yellow); color: #111; margin-bottom: 15px; width: 100%;">
+                        GANHE 120 XP
+                    </button>
+                </div>
+            </div>
+
+        <!-- MAIN -->
+        <div class="main-content">
+            <div class="section-title">Desafios</div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% set is_success = 'success' in category %}
+                        <div class="asyncx-alert-ticket" 
+                            style="background: {% if is_success %}rgba(76, 175, 80, 0.05){% else %}rgba(229, 57, 53, 0.05){% endif %}; 
+                                    border: 1px solid {% if is_success %}#4caf50{% else %}#e53935{% endif %}; 
+                                    padding: 14px 20px; 
+                                    border-radius: 6px; 
+                                    margin-bottom: 2rem;
+                                    opacity: 1;
+                                    transition: opacity 0.5s ease, max-height 0.5s ease, margin 0.5s ease;
+                                    max-height: 80px;
+                                    overflow: hidden;">
+                            <p style="font-family: var(--font-mono); font-size: 0.95rem; color: {% if is_success %}#66bb6a{% else %}#ef5350{% endif %}; font-weight: 600; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; text-align: center;">
+                                {% if is_success %}{{ message }}{% else %}{{ message }}{% endif %}
+                            </p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab(event, 'Cyberdetective')">Cyberdetective</button>
+                <button class="tab-btn" onclick="switchTab(event, 'Invasion')">Invasion</button>
+                <button class="tab-btn" onclick="switchTab(event, 'Defense')">Defense</button>
+                <button class="tab-btn" onclick="switchTab(event, 'Code')">Code</button>
+                <button class="tab-btn" onclick="switchTab(event, 'Arcade')">Arcade</button>
+                <button class="tab-btn" onclick="switchTab(event, 'Hardware')">Hardware</button>
+            </div>
+
+            {% for category, list in challenges_by_category.items() %}
+                <div id="{{ category }}" class="tab-content {% if loop.first %}active{% endif %}">
+                    <div class="challenge-grid">
+                        {% if not list %}
+                            <p style="color:var(--text-muted); font-family:var(--font-mono); font-size:0.85rem;">
+                                Nenhum desafio detectado nesta camada.
+                            </p>
+                        {% endif %}
+
+                        {% for c in list %}
+                            <div class="challenge-card {% if c.id in solved_ids %}solved-box{% endif %}">
+
+                                <div class="card-cover">
+    
+                                    {% if c.action_type == 'iframe' and c.action_url %}
+                                        <div class="video-wrapper">
+                                            <div class="video-overlay"></div>
+                                            <div class="rec-indicator">LIVE FEED</div>
+                                            <img class="card-cover-img" id="thumb-{{ c.id }}" src="" style="display: none; filter: grayscale(20%) contrast(110%);">
+                                            <script>
+                                                (function() {
+                                                    var url = "{{ c.action_url }}";
+                                                    var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                                                    var match = url.match(regExp);
+                                                    var videoId = (match && match[2].length === 11) ? match[2] : null;
+                                                    if(videoId) {
+                                                        var imgElement = document.getElementById("thumb-{{ c.id }}");
+                                                        imgElement.src = "https://img.youtube.com/vi/" + videoId + "/maxresdefault.jpg";
+                                                        imgElement.style.display = "block";
+                                                    }
+                                                })();
+                                            </script>
+                                        </div>
+                                        
+                                    {% elif c.cover_image %}
+                                        <img class="card-cover-img" src="{{ c.cover_image }}" alt="Capa do Desafio" style="filter: grayscale(20%) contrast(110%);">
+                                        
+                                    {% else %}
+                                        <div class="card-cover-placeholder">&lt;/&gt;</div>
+                                    {% endif %}
+
+                                    {% if c.id in solved_ids %}
+                                        <div class="solved-check">✓</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="card-title">{{ c.title }}</div>
+
+                                    {% if c.description %}
+                                        <div class="card-label">Descrição</div>
+                                        <div class="card-desc">
+                                            {{ c.description[:250] }}{% if c.description|length > 250%}...{% endif %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if c.id not in solved_ids %}
+    
+                                        {% if c.action_type == 'iframe' and c.action_url %}
+                                            <button class="btn-start" onclick="openVideoModal('{{ c.action_url }}', '{{ c.title|escape }}')">COMEÇAR</button>
+                                        
+                                        {% elif c.action_type == 'download' and c.action_url %}
+                                            <a href="{{ c.action_url }}" target="_blank" class="btn-start">BAIXAR</a>
+                                            
+                                        {% elif c.action_type == 'link' and c.action_url %}
+                                            <a href="{{ c.action_url }}" target="_blank" class="btn-start">ACESSAR</a>
+                                            
+                                        {% else %}
+                                            <button class="btn-start" 
+                                                    style="background: var(--cyan); color: #000000; font-weight: bold; letter-spacing: 1px; transition: all 0.2s; position: relative;" 
+                                                    onclick="const btn=this; 
+                                                             btn.innerText='DESAFIO DO MUNDO REAL...'; 
+                                                             btn.style.background='#007a87'; 
+                                                             btn.style.color='#ffffff';
+                                                             btn.style.animation='pulse 1s infinite'; 
+                                                             setTimeout(() => { 
+                                                                 btn.innerText='LOCALIZAR'; 
+                                                                 btn.style.background='var(--cyan)'; 
+                                                                 btn.style.color='#000000';
+                                                                 btn.style.animation='none'; 
+                                                             }, 3000);">
+                                                LOCALIZAR
+                                            </button>
+                                        {% endif %}
+
+                                        <div class="card-footer-row">
+                                            <span class="pts-badge">{{ c.points }} pts</span>
+                                            
+                                            <button onclick="comprarDica({{ c.id }})" 
+                                                    class="btn-hint" 
+                                                    {% if c.id in purchased_ids %}
+                                                        disabled 
+                                                        style="background: #222222; color: #555555; border-color: #2d2d2d; cursor: not-allowed; box-shadow: none;"
+                                                    {% endif %}>
+                                                {% if c.id in purchased_ids %}RESGATADO{% else %}DICA{% endif %}
+                                            </button>
+                                        </div>
+
+                                        {% if c.id in purchased_ids %}
+                                            <div class="hint-box" style="margin-top: 12px; background: rgba(0, 188, 212, 0.03); border: 1px solid rgba(0, 188, 212, 0.1); padding: 10px; border-radius: 4px;">
+                                                <span class="hint-label" style="color: var(--cyan); font-family: var(--font-mono); font-weight: bold; font-size: 0.85rem;"></span>
+                                                
+                                                <span class="blur-hint" 
+                                                      onclick="this.classList.toggle('reveal')" 
+                                                      title="Clique para revelar ou esconder a dica"
+                                                      style="cursor: pointer; font-family: var(--font-mono); font-size: 0.9rem; display: inline-block; margin-top: 4px;">
+                                                    {{ c.hint }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+
+                                        <form action="/submit" method="post" class="flag-form" style="margin-top: 0.6rem;" onsubmit="return validarEnvioFlag(event)">
+                                            <input type="hidden" name="challenge_id" value="{{ c.id }}">
+                                            <input type="text" name="flag" class="input-flag" placeholder="Flag ..." required autocomplete="off">
+                                            <button type="submit" class="btn-submit">ENVIAR</button>
+                                        </form>
+                                    {% else %}
+                                        <div class="card-footer-row" style="margin-top:1rem;">
+                                            <span class="pts-badge solved">{{ c.points }} pts</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <div class="footer-bar">
+        <span>Asyncx Tecnologia - Todos os direitos reservados</span>
+        <div class="footer-social" style="display: flex; gap: 15px; align-items: center;">
+            <span>Linkedin </span>       
+            <a href="https://www.linkedin.com/company/asyncxtecnologia" target="_blank" title="Siga a AsyncX no LinkedIn" 
+               style="color: var(--text-dim); display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;"
+               onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-dim)'">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: currentColor;"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.8v8.37h2.8v-4.67c0-.25.06-.5.14-.69a1.16 1.16 0 0 1 1.07-.77c.75 0 1 .57 1 1.41v4.72h2.8M6.5 8.37a1.37 1.37 0 1 0 0-2.75 1.37 1.37 0 0 0 0 2.75M8 18.5V10.13H5.2v8.37H8z"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- MODAL: Tutorial -->
+    <div id="modalTutorial" class="modal" style="display: none;">
+        
+        <div class="modal-content" style="max-width: 720px; background: transparent; border: none; box-shadow: none; padding: 0;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px;">
+                <div>
+                    <h2 style="color: var(--cyan); font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 2px; margin: 0;">TUTORIAL</h2>
+                    <p style="color: var(--text); font-size: 0.85rem; font-family: var(--font-mono); margin: 0; margin-top: 4px;">Entendendo as regras do game.</p>
+                </div>
+                <span class="modal-close" onclick="closeModal('modalTutorial')" style="position: static; font-size: 2rem; line-height: 1;">&times;</span>
+            </div>
+
+            <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); background: #000;">
+                
+                <iframe style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:auto;" 
+                        src="https://www.youtube.com/embed/wRVU-f2WEU8?modestbranding=1&rel=0&controls=1" 
+                        frameborder="0" loading="lazy" allowfullscreen></iframe>
+            </div>
+            <button class="btn-start" onclick="closeModal('modalTutorial')" 
+                    style="margin-top: 15px; width: 100%; background: #005f6b; color: #ffffff; border: 1px solid var(--cyan); font-family: var(--font-mono); transition: all 0.2s; font-weight: bold; cursor: pointer;"
+                    onmouseover="this.style.background='var(--cyan)'; this.style.color='#000000';" 
+                    onmouseout="this.style.background='#005f6b'; this.style.color='#ffffff';">
+                ENTENDI
+            </button>
+
+        </div>
+    </div>
+
+    <!-- MODAL: Integrantes -->
+    <div id="modalIntegrantes" class="modal">
+        <div class="modal-content" style="max-width: 500px; background: #0a0a0a; border: 1px solid #333; box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);">
+            <span class="modal-close" onclick="closeModal('modalIntegrantes')">&times;</span>
+            
+            <h2 style="margin-bottom: 0.3rem; color: var(--neon-cyan); font-family: var(--font-display); letter-spacing: 2px;">EQUIPE</h2>
+            <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1.5rem; font-family: var(--font-mono); letter-spacing: 1px;">
+                [ INTEGRANTES ]
+            </p>
+
+            <div style="background: rgba(0, 242, 255, 0.02); border: 1px solid #1a1a1a; border-radius: 8px; padding: 15px; font-family: var(--font-ui);">
+                {% if team_members %}
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        
+                        {% for integrante in team_members.split(',') %}
+                            {% if integrante.strip() %}
+                            <li style="color: #e0e0e0; font-size: 1rem; padding: 10px 5px; border-bottom: 1px solid #151515; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="color: var(--neon-cyan); font-size: 0.6rem; animation: pulse 2s infinite;">🟢</span>
+                                    <span style="font-weight: 500; letter-spacing: 0.5px;">{{ integrante.strip() }}</span>
+                                </div>
+                                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase;">[ ATIVO ]</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div style="text-align: center; padding: 15px 0; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">
+                        Nenhum integrante registrado nessa equipe.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPlacar" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('modalPlacar')">&times;</span>
+            <h2 style="margin-bottom:1.2rem; color:var(--cyan); font-family:var(--font-display); font-size:1rem; letter-spacing:1px;">RANKING</h2>
+            
+            <div style="max-height:300px; overflow-y:auto; padding-right: 5px;">
+                {% for r in ranking %}
+                    <div style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid var(--border); font-family:var(--font-ui); font-size:0.95rem;">
+                        
+                        <span style="{% if r.name == session['team_name'] %}color:var(--cyan); font-weight:700;{% else %}color:var(--text-muted);{% endif %}">
+                            {{ loop.index }}º {{ r.name }}
+                        </span>
+                        
+                        <strong style="color:var(--green)">{{ r.score }} XP</strong>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+    <!-- MODAL: Sobre -->
+    <div id="modalSobre" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('modalSobre')">&times;</span>
+            <h2 style="margin-bottom:1rem; font-family:var(--font-display); font-size:1rem;">Sobre a AsyncX</h2>
+            <p style="color:var(--text-muted); line-height:1.5; font-family:var(--font-ui); font-size:0.9rem;">A AsyncX é uma empresa de Tecnologia, que fornece serviços de Treinamentos, Eventos, Infraestrutura e Suporte Técnico. Nosso compromisso está em promover a segurança e alto desempenho de sistemas, em qualquer négocio.</p>
+        </div>
+    </div>
+
+    <!-- MODAL: Dicas Aleatórias -->
+    <div id="modalDicasAleatorias" class="modal">
+        <div class="modal-content" style="max-width: 500px; background: #0a0a0a; border: 1px solid var(--orange, #ff5500); box-shadow: 0 0 30px rgba(255, 85, 0, 0.1);">
+            <span class="modal-close" onclick="closeModal('modalDicasAleatorias')">&times;</span>
+            <h2 style="margin-bottom: 0.3rem; color: var(--orange, #ff5500); font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 1px;">WIRELESS INTEL DEBUG</h2>
+            <p style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 1.2rem; font-family: var(--font-mono);">
+                DICA DO HACKATHON
+            </p>
+            
+            <div id="textoDicaAleatoria" style="background:#111; padding:16px; border-radius:8px; border-left:4px solid var(--orange, #ff5500); font-family:var(--font-mono); font-size:0.85rem; color:#fff; line-height:1.6; min-height: 60px; white-space: pre-wrap;">
+                Carregando dados...
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Arsenal -->
+    <div id="modalArsenal" class="modal modal-arsenal modal-arsenal-custom">
+        <div class="modal-content" style="max-width: 900px;"> 
+            <div class="modal-close" onclick="closeModal('modalArsenal')">×</div>
+            <h2 class="section-title" style="margin-bottom: 1rem; font-size: 1.5rem; color: var(--neon-cyan);">FERRAMENTAS</h2>
+
+            <div class="decoder-box">
+                <h3 style="font-size: 1rem; color: #fff; margin-bottom: 12px; font-family: var(--font-display);">DECODIFICADOR MULTI-BASE</h3>
+                <textarea id="decodeInput" class="input-flag" rows="3" placeholder="Cole a flag encriptada, hash ou string binária aqui..."></textarea>
+                
+                <div class="decoder-controls">
+                    <button class="btn-decode" onclick="runDecode('b64')">Base-64</button>
+                    <button class="btn-decode" onclick="runDecode('b32')">Base-32</button>
+                    <button class="btn-decode" onclick="runDecode('b45')">Base-45</button>
+                    <button class="btn-decode" onclick="runDecode('bin')">Binário</button>
+                    <button class="btn-decode" onclick="runDecode('oct')">Octal</button>
+                    <button class="btn-decode" onclick="runDecode('hex')">Hexadec</button>
+                    <button class="btn-decode" onclick="runDecode('rot')">C-César</button>
+                    <button class="btn-decode" onclick="runDecode('url')">URL-Dec</button>
+                    
+                    <button class="btn-clear" onclick="document.getElementById('decodeInput').value=''; document.getElementById('decodeOutput').innerText='Resultado da análise...';">Limpar Terminal</button>
+                </div>
+                
+                <div id="decodeOutput" class="decoder-output">Resultado da análise...</div>
+            </div>
+
+            <h3 style="font-size: 1rem; color: #fff; margin-bottom: 15px; font-family: var(--font-display);">FERRAMENTAS DE EXTRAÇÃO E PESQUISA</h3>
+        
+            <div class="arsenal-grid">
+            
+                <a href="https://www.virustotal.com/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">VirusTotal</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Análise de IoCs, arquivos e URLs suspeitas contra múltiplos motores de antivírus.</p>
+                    </div>
+                </a>
+
+                <a href="https://gchq.github.io/CyberChef/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.5 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">CyberChef</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">O "Canivete Suíço" para operações criptográficas, encodings e análise de pacotes.</p>
+                    </div>
+                </a>
+
+                <a href="https://crackstation.net/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">CrackStation</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Quebra massiva de Hashes (MD5, SHA1) em segundos através de Rainbow Tables.</p>
+                    </div>
+                </a>
+
+                <a href="https://www.shodan.io/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">Shodan.io</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">O motor de busca global para Reconnaissance de dispositivos conectados e servidores.</p>
+                    </div>
+                </a>
+
+                <a href="https://www.metadata2go.com/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">Metadata2Go</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Forense Digital. Extraia dados ocultos, coordenadas e EXIF de imagens e PDFs.</p>
+                    </div>
+                </a>
+
+                <a href="https://haveibeenpwned.com/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">HIBP</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Consulta de inteligência em bases de dados sobre vazamento massivo de credenciais.</p>
+                    </div>
+                </a>
+
+                <a href="https://dencode.com/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">Dencode</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Conversor universal de strings e payloads de codificação web simultâneos.</p>
+                    </div>
+                </a>
+
+                <a href="https://archive.org/web/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">Wayback Machine</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Arquivo digital da internet. Recupere páginas excluídas, diretórios antigos e histórico de domínios (OSINT).</p>
+                    </div>
+                </a>
+
+                <a href="https://www.revshells.com/" target="_blank" class="arsenal-card">
+                    <svg viewBox="0 0 24 24" class="arsenal-icon"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--neon-cyan, #00f2ff); font-size: 1rem;">RevShells</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">Gerador de conexões de Reverse Shell automatizado em dezenas de linguagens.</p>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Vídeos -->
+    <div id="modalVideo" class="modal" style="display: none;">
+        
+        <div class="modal-content" style="max-width: 800px; background: transparent; border: none; box-shadow: none; padding: 0;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px;">
+                <h2 id="videoModalTitle" style="color: var(--cyan); font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 2px; margin: 0; text-transform: uppercase;">DECRYPTING FEED...</h2>
+                <span class="modal-close" onclick="closeVideoModal()" style="position: static; font-size: 2rem; line-height: 1;">&times;</span>
+            </div>
+            
+            <div class="video-shield-container" style="box-shadow: 0 15px 40px rgba(0,0,0,0.8);">
+                <div id="yt-player-container"></div>
+            </div>
+
+            <div class="custom-controls" style="padding: 0 5px;">
+                
+                <button class="btn-icon" onclick="asyncxPlay()" title="Iniciar Transmissão">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                
+                <button class="btn-icon" onclick="asyncxPause()" title="Pausar Transmissão">
+                    <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                
+                <button class="btn-icon" onclick="asyncxFullscreen()" title="Expandir Ecrã">
+                    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
+                
+                <div class="feed-status">STATUS: <span style="color: var(--green-bright); animation: pulse 2s infinite;">CONECTADO</span></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: Avatar -->
+    <div id="modalAvatar" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" onclick="closeModal('modalAvatar')">&times;</span>
+            <h2 style="margin-bottom:1.5rem; color:var(--neon-cyan)">SELECIONE SEU EMBLEMA</h2>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                {% for i in range(1, 26) %}
+                <div class="avatar-option avatar-glow" onclick="updateTeamAvatar('avatar{{ i }}.webp')" 
+                    style="cursor:pointer; border: 2px solid var(--border-cyber); border-radius: 50%; padding: 4px;">
+                    <img src="{{ url_for('static', filename='img/avatars/avatar' ~ i ~ '.webp') }}" style="width:100%; border-radius:50%; height: auto;">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Materiais para download -->
+    <div id="modalMaterial" class="modal">
+        <div class="modal-content" style="max-width: 700px; background: #0a0a0a; border: 1px solid #333;">
+            <span class="modal-close" onclick="closeModal('modalMaterial')">&times;</span>
+            
+            <h2 style="margin-bottom: 0.5rem; color: var(--neon-cyan); font-family: var(--font-display); letter-spacing: 2px;">CENTRAL DE DOCUMENTOS</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+                Documentação oficial e Cheat Sheets autorizados para consulta durante a operação.
+            </p>
+
+            <div class="docs-responsive-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            
+                <div style="background: rgba(0, 188, 212, 0.05); border: 1px solid #222; border-radius: 8px; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: border 0.2s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='#222'">
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1rem; margin-bottom: 3px;">Linux Sysadmin</strong>
+                        <span style="color: var(--text-dim); font-size: 0.75rem;">Comandos, File System e Permissões.</span>
+                    </div>
+                    <a href="{{ url_for('static', filename='materials/linux_cheat.pdf') }}" target="_blank" 
+                    style="background: var(--cyan); color: #000; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.75rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                    ACESSAR
+                    </a>
+                </div>
+
+                <div style="background: rgba(0, 188, 212, 0.05); border: 1px solid #222; border-radius: 8px; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: border 0.2s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='#222'">
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1rem; margin-bottom: 3px;">Nmap & Recon</strong>
+                        <span style="color: var(--text-dim); font-size: 0.75rem;">Flags essenciais e varredura de portas.</span>
+                    </div>
+                    <a href="{{ url_for('static', filename='materials/nmap_guide.pdf') }}" target="_blank" 
+                    style="background: var(--cyan); color: #000; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.75rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                    ACESSAR
+                    </a>
+                </div>
+
+                <div style="background: rgba(0, 188, 212, 0.05); border: 1px solid #222; border-radius: 8px; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: border 0.2s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='#222'">
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1rem; margin-bottom: 3px;">Criptografia Base</strong>
+                        <span style="color: var(--text-dim); font-size: 0.75rem;">Hashes, Base64, Hex e Encodings.</span>
+                    </div>
+                    <a href="{{ url_for('static', filename='materials/crypto_cheat.pdf') }}" target="_blank" 
+                    style="background: var(--cyan); color: #000; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.75rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                    ACESSAR
+                    </a>
+                </div>
+
+                <div style="background: rgba(0, 188, 212, 0.05); border: 1px solid #222; border-radius: 8px; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: border 0.2s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='#222'">
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1rem; margin-bottom: 3px;">AsyncX Toolkit</strong>
+                        <span style="color: var(--text-dim); font-size: 0.75rem;">Pacote offline (.ZIP) completo.</span>
+                    </div>
+                    <a href="{{ url_for('static', filename='materials/asyncx_toolkit.zip') }}" download 
+                    style="background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 7px 12px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;" onmouseover="this.style.background='var(--cyan)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--cyan)';">
+                    BAIXAR
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Emissão de certificado -->
+    <div id="modalCertificado" class="modal">
+        <div class="modal-content" style="max-width: 500px; background: #0a0a0a; border: 1px solid #333; box-shadow: 0 0 30px rgba(0, 188, 212, 0.15);">
+            <span class="modal-close" onclick="closeModal('modalCertificado')">&times;</span>
+            
+            <h2 style="margin-bottom: 0.3rem; color: var(--cyan); font-family: var(--font-display); letter-spacing: 2px;">EMISSÃO DO CERTIFICADO</h2>
+            
+            <p id="cert-status-msg" style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1.5rem; font-family: var(--font-mono);">
+                SELECIONE O INTEGRANTE PARA GERAR O CERTIFICADO
+            </p>
+
+            {% if team_members %}
+                <form action="/generate_certificate" method="POST" target="_blank" style="display: flex; flex-direction: column; gap: 15px;" onsubmit="prepararCertificado(event)">
+                    
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <label style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.75rem;">Selecione abaixo:</label>
+                        
+                        <select id="cert-select" name="member_name" required style="background: #111; color: #fff; border: 1px solid #222; padding: 12px; border-radius: 4px; font-family: var(--font-ui); font-size: 1rem; width: 100%; outline: none; cursor: pointer;" onchange="this.style.borderColor='var(--cyan)'">
+                            <option value="" disabled selected>Nome do integrante...</option>
+                            {% for integrante in team_members.split(',') %}
+                                {% if integrante.strip() %}
+                                    <option value="{{ integrante.strip() }}">{{ integrante.strip() }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button id="cert-btn" type="submit" class="btn-start" style="background: var(--cyan); color: #000; font-weight: 700; letter-spacing: 1px; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer;">
+                        GERAR CERTIFICADO
+                    </button>
+                    
+                    <div style="background: rgba(0, 188, 212, 0.05); border: 1px dashed var(--cyan); padding: 12px; border-radius: 6px; margin-top: 20px; margin-bottom: 15px;">
+                        <p style="font-family: var(--font-ui); font-size: 0.85rem; color: var(--cyan); text-align: center; margin: 0; line-height: 1.4;">
+                            <b>AVISO</b><br>
+                            Você poderá realizar a verificação de autenticidade deste documento em https://asyncx.com.br/validador, somente em<b> 10 dias úteis</b> após a emissão.
+                        </p>
+                    </div>
+                </form>
+            {% else %}
+                <div style="text-align: center; padding: 15px 0; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">
+                    Cadastre os integrantes para liberar a emissão.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- MODAL: Link de votação -->
+    <div id="modal-votacao-mvp" class="modal-overlay-global hidden-global">
+        <div class="modal-content-global">
+            <h2 class="modal-title-global" style="color: var(--yellow);">Operação MVP</h2>
+            
+            <div class="modal-rules-global">
+                <p style="margin-bottom: 12px;">1. A equipe que conquistar a maior <b>Torcida Externa</b> validada no fim do evento receberá um airdrop de <span class="modal-highlight-text-global" style="color: var(--yellow);">120 XP</span>.</p>
+                <p style="margin-bottom: 12px;">2. Copie o link para o formulário de votação abaixo e espalhe nas suas redes sociais, grupos e contatos.</p>
+                <p>3. Constas falsas resultaram em desclassificação. Jogue limpo!</p>
+            </div>
+            
+            <div style="margin-top: 24px;">
+                <input type="text" id="link-votacao-forms" value="{{ voting_link }}" readonly
+                    style="width: 100%; padding: 14px; border-radius: 4px; border: 1px dashed var(--yellow); background: #0f0f0f; color: var(--yellow); margin-bottom: 20px; font-family: 'Share Tech Mono', monospace; font-size: 1rem; outline: none; text-align: center; cursor: copy;"
+                    onclick="copiarLinkVotacao()">
+                
+                <button type="button" id="btn-copiar-link" onclick="copiarLinkVotacao()" class="modal-btn-global btn-primary-global" style="background: var(--yellow); color: #000; margin-bottom: 10px;">
+                    COPIAR LINK DE VOTAÇÃO
+                </button>
+                <button type="button" onclick="toggleModalVotacao(false)" class="modal-btn-global btn-secondary-global">
+                    FECHAR
+                </button>
+            </div>
+        </div>
+    </div>
+    {% include 'modal_sorteio.html' %}
+    {% include 'loader_global.html' %}
+    <script>
+        function switchTab(evt, categoryName) {
+            const tabcontents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].style.display = "none";
+            }
+            const tablinks = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(categoryName).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = "flex"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        window.addEventListener('click', function(e) {
+            document.querySelectorAll('.modal').forEach(m => {
+                if (e.target === m) m.style.display = 'none';
+            });
+        });
+
+        function comprarDica(id) {
+            if(confirm("Essa dica terá um desconto de -25 PONTOS no ranking geral da equipe.")) {
+                showLoader('Resgatando dica...');
+                fetch('/hint/' + id)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.error) {
+                            hideLoader();
+                            alert(data.hint);
+                        } else {
+                            location.reload();
+                        }
+                    }).catch(() => {
+                        hideLoader();
+                        alert("Erro de conexão.");
+                    });
+            }
+        }
+
+        const endTimeStr = "{{ end_time }}";
+        if (endTimeStr) {
+            const countDownDate = new Date(endTimeStr).getTime();
+            const x = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("countdown").innerHTML = days + "d " +
+                    String(hours).padStart(2,'0') + ":" +
+                    String(minutes).padStart(2,'0') + ":" +
+                    String(seconds).padStart(2,'0');
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById("countdown").innerHTML = "ENCERRADO";
+                }
+            }, 1000);
+        }
+
+        function runDecode(type) {
+            const input = document.getElementById('decodeInput').value.trim();
+            const output = document.getElementById('decodeOutput');
+            
+            if (!input) {
+                output.innerText = "[!] Insira um payload para análise.";
+                return;
+            }
+
+            try {
+                let result = "";
+                
+                switch (type) {
+                    case 'b64':
+                        result = atob(input);
+                        break;
+                        
+                    case 'url':
+                        result = decodeURIComponent(input);
+                        break;
+                        
+                    case 'hex':
+                        const cleanHex = input.replace(/\s/g, '');
+                        result = cleanHex.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+                        break;
+                        
+                    case 'bin':
+                        const binBlocks = input.includes(' ') ? input.split(' ') : input.match(/.{1,8}/g);
+                        result = binBlocks.map(b => String.fromCharCode(parseInt(b, 2))).join('');
+                        break;
+                        
+                    case 'oct':
+                        result = input.split(/\s+/).map(o => String.fromCharCode(parseInt(o, 8))).join('');
+                        break;
+                        
+                    case 'b32':
+                        const b32chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+                        let bits = "";
+                        let str32 = input.replace(/=+$/, '').toUpperCase();
+                        for (let i = 0; i < str32.length; i++) {
+                            let val = b32chars.indexOf(str32.charAt(i));
+                            if (val === -1) continue;
+                            bits += val.toString(2).padStart(5, '0');
+                        }
+                        for (let i = 0; i + 8 <= bits.length; i += 8) {
+                            result += String.fromCharCode(parseInt(bits.substr(i, 8), 2));
+                        }
+                        break;
+                        
+                    case 'b45':
+                        const charset45 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+                        let res45 = [];
+                        for (let i = 0; i < input.length; i += 3) {
+                            let chunk = input.substring(i, i + 3);
+                            let val = 0;
+                            for (let j = 0; j < chunk.length; j++) {
+                                val += charset45.indexOf(chunk[j]) * Math.pow(45, j);
+                            }
+                            if (chunk.length === 3) {
+                                res45.push(Math.floor(val / 256), val % 256);
+                            } else if (chunk.length === 2) {
+                                res45.push(val);
+                            }
+                        }
+                        result = String.fromCharCode.apply(null, res45);
+                        break;
+
+                    case 'rot':
+                        result = "--- BRUTE FORCE CIFRA DE CÉSAR ---\n\n";
+                        for (let i = 1; i <= 25; i++) {
+                            let rotStr = input.replace(/[a-zA-Z]/g, function(c) {
+                                let base = c <= 'Z' ? 65 : 97;
+                                return String.fromCharCode((c.charCodeAt(0) - base + i) % 26 + base);
+                            });
+                            result += `[ROT ${i.toString().padStart(2, '0')}] ${rotStr}\n`;
+                        }
+                        break;
+                }
+                
+                output.innerText = result || "[!] Formato inválido ou impossível decodificar.";
+                
+            } catch (e) {
+                output.innerText = "[!] ERRO DE PARSER: O payload inserido não corresponde à base matemática selecionada.";
+            }
+        }
+
+        function updateTeamAvatar(avatarName) {
+            showLoader('Alterando...'); 
+            fetch('/update_avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatar_name: avatarName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoader(); 
+                if (data.success) {
+                    const avatarImg = document.getElementById('current-avatar');
+                    avatarImg.src = "/static/img/avatars/" + avatarName;
+                    closeModal('modalAvatar');
+                } else {
+                    alert("Erro ao comunicar com o servidor da AsyncX.");
+                }
+            })
+            .catch(error => {
+                hideLoader(); 
+                console.error('Falha na comunicação de rede:', error);
+            });
+        }
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var asyncxPlayer;
+
+        function extractVideoID(url) {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function openVideoModal(videoUrl, title) {
+            document.getElementById('videoModalTitle').innerText = title.toUpperCase();
+            document.getElementById('modalVideo').style.display = 'flex';
+            
+            var videoId = extractVideoID(videoUrl);
+
+            if (asyncxPlayer) { asyncxPlayer.destroy(); }
+
+            asyncxPlayer = new YT.Player('yt-player-container', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,        
+                    'controls': 0,        
+                    'disablekb': 1,       
+                    'fs': 1,              
+                    'modestbranding': 1,  
+                    'rel': 0              
+                },
+                events: {
+                    'onReady': function(event) {
+                        event.target.playVideo();
+                    }
+                }
+            });
+        }
+
+        function asyncxPlay() { if(asyncxPlayer && asyncxPlayer.playVideo) asyncxPlayer.playVideo(); }
+        function asyncxPause() { if(asyncxPlayer && asyncxPlayer.pauseVideo) asyncxPlayer.pauseVideo(); }
+
+        function asyncxFullscreen() {
+            var playerIframe = document.getElementById('yt-player-container');
+            if (playerIframe) {
+                if (playerIframe.requestFullscreen) {
+                    playerIframe.requestFullscreen();
+                } else if (playerIframe.webkitRequestFullscreen) { 
+                    playerIframe.webkitRequestFullscreen();
+                } else if (playerIframe.msRequestFullscreen) {
+                    playerIframe.msRequestFullscreen();
+                }
+            }
+        }
+
+        function closeVideoModal() {
+            if(asyncxPlayer) { asyncxPlayer.destroy(); }
+            document.getElementById('modalVideo').style.display = 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const eventEndTime = new Date("{{ end_time }}").getTime();
+            const now = new Date().getTime();
+            
+            if (now < eventEndTime) {
+                const btn = document.getElementById("cert-btn");
+                const select = document.getElementById("cert-select");
+                const msg = document.getElementById("cert-status-msg");
+                
+                if(btn && select && msg) {
+                    btn.disabled = true;
+                    btn.style.background = "#333";
+                    btn.style.color = "#666";
+                    btn.style.cursor = "not-allowed";
+                    btn.innerText = "SISTEMA BLOQUEADO";
+                    
+                    select.disabled = true;
+                    
+                    msg.innerHTML = '<span style="color: #ff4444;">Emissão disponível após o término do evento.</span>';
+                }
+            }
+        });
+
+const BANCO_DICAS_HCB = [
+            "OSINT: O Google Dorking é o melhor amigo do pesquisador. Tente buscar por arquivos de configuração expostos usando operadores como ext:env ou intitle:\"index of\".",
+            "OSINT: Achou uma foto de um local e não sabe onde é? Faça uma busca reversa de imagens no Google Lens ou Yandex para descobrir a origem exata.",
+            "OSINT: Perfis públicos são minas de ouro. Detalhes como nome do pet, data de nascimento e cidade natal são frequentemente usados na composição de senhas.",
+            "OSINT: A página foi apagada ou o link quebrou? O site archive.org salva cópias antigas da internet. Aquele diretório oculto pode estar cacheado lá.",
+            "OSINT: Toda foto tirada com celular guarda segredos. O site Metadata2Go pode revelar as coordenadas GPS exatas de onde a imagem foi capturada.",
+            "Dados Vazados: O e-mail do alvo apareceu em listas de brechas? O site HaveIBeenPwned informa em quais vazamentos massivos aquela credencial foi exposta na internet.",
+            "Dados Vazados: Desenvolvedores também cometem erros. Busque por chaves de API, senhas ou tokens de acesso esquecidos e vazados no histórico de commits.",
+            "Dados Vazados: Hackers costumam despejar dumps de banco de dados em fóruns de texto puro. Pesquise pelo domínio do alvo seguido da palavra 'pastebin' no Google.",
+            "Dados Vazados: Hashes muito antigos encontrados em fóruns da Dark Web geralmente já foram quebrados. Consulte o CrackStation antes de tentar fazer força bruta.",
+            "Programação: Fique de olho no código-fonte HTML da página e no Console. Devs frequentemente deixam comentários com rotas secretas.",
+            "Programação: APIs REST muitas vezes escondem versões antigas. Se a rota atual é `/api/v2/users`, verifique se a `/api/v1/users` ainda responde sem pedir autenticação.",
+            "Programação: Variáveis globais expostas no JavaScript do navegador podem ser facilmente manipuladas via Console para burlar verificações de formulários.",
+            "Programação: Uma pasta secreta `.git` esquecida no servidor web de produção permite que qualquer pessoa baixe o código-fonte inteiro do projeto.",
+            "Programação: Nunca escreva senhas de banco de dados diretamente no código. Arquivos sensíveis como configurações .env são os primeiros alvos de atacantes.",
+            "Programação: Páginas de erro verbosas ativadas em produção entregam caminhos absolutos do servidor e versões de bibliotecas de bandeja para o invasor.",
+            "Linux: Esqueceu onde um arquivo está salvo? O comando `find / -name \"*nome*\" 2>/dev/null` faz uma varredura limpa pelo sistema escondendo mensagens de permissão negada.",
+            "Linux: O sistema está lento? Use o comando `htop` ou `top` para verificar quais processos estão consumindo CPU, e `kill -9 PID` para derrubá-los.",
+            "Linux: Quer achar uma palavra ou erro específico em um log de texto gigante? O comando `grep -i \"palavra\" arquivo.log` filtra tudo o que você precisa em segundos.",
+            "Linux: O histórico de comandos do sistema pode conter senhas ou parâmetros sensíveis digitados acidentalmente. Sempre verifique digitando `cat ~/.bash_history`.",
+            "EASTER EGG: Essa dica é para os sortudos! Encontre o Desafio no painel de missões e receba sua recompensa inserindo a seguinte flag: A_s0rt3_est4_AQu1!",
+            "EASTER EGG: Essa dica é para os resilientes! Mantenha o avatar default no time e receba 40 pontos no final do evento",
+            "Programação: Commits antigos nunca morrem realmente. Se um dev apagou uma credencial num commit recente, procure o histórico completo da árvore com `git log -p` para ver a alteração original.",
+            "OSINT: Não procure apenas por websites. Motores de busca como o Shodan.io (no Arsenal) permitem encontrar câmaras, impressoras e bases de dados mal configuradas ligadas diretamente à internet pública.",
+            "Programação: Se o alvo usar uma API GraphQL, tente o ataque de Introspecção enviando a query `{ __schema { types { name } } }`. Isto pode mapear e revelar toda a estrutura invisível da base de dados.",
+            "Dados Vazados: Os alvos reciclam palavras-passe. Se encontrou 'Senha!2023' num vazamento antigo, experimente variações lógicas como 'Senha!2024' ou 'Senha@2024' antes de tentar um ataque de força bruta complexo.",
+            "OSINT: Ficheiros PDF e DOCX publicados em portais corporativos guardam segredos. O Metadata2Go revela o nome do autor, o software usado e até o caminho original do ficheiro no disco (ex: C:\\Users\\Admin\\...).",
+            "OSINT: Tem uma foto mas não sabe o local? Analise o comprimento e a direção das sombras. Ferramentas de astronomia online (SunCalc) ajudam a determinar a hora e a latitude exata em que a fotografia foi tirada.",
+            "Forense: O atacante apagou o `.bash_history` do Linux? Não desista. Verifique se a aplicação guarda os seus próprios registos silenciosos, como ficheiros `.mysql_history` ou logs não rotacionados do Nginx/Apache.",
+            "Esteganografia e Dados Ocultos: A imagem PNG não apresenta nada de errado nos metadados? Experimente analisar os Bits Menos Significativos usando o CyberChef ou a ferramenta de terminal `zsteg` para revelar mensagens injetadas nos píxeis."
+        ];
+
+
+        function openModalDicas() {
+            const elementoTexto = document.getElementById('textoDicaAleatoria');
+            if (elementoTexto) {
+                const indiceAleatorio = Math.floor(Math.random() * BANCO_DICAS_HCB.length);
+                elementoTexto.innerText = `"${BANCO_DICAS_HCB[indiceAleatorio]}"`;
+            }
+            openModal('modalDicasAleatorias');
+        }
+
+        const endStrDash = "{{ end_time }}";
+        if (endStrDash) {
+            const eventEndTimeDash = new Date(endStrDash).getTime();
+            const limitTimeSorteioDash = eventEndTimeDash + (48 * 60 * 60 * 1000);
+            const nowDash = new Date().getTime();
+            const btnDash = document.querySelector('.sorteio-btn'); 
+            if (btnDash && nowDash > limitTimeSorteioDash) {
+                btnDash.textContent = "INSCRIÇÕES ENCERRADAS";
+                btnDash.style.opacity = "0.4";
+                btnDash.style.cursor = "not-allowed";
+                btnDash.onclick = null;
+            }
+        }
+
+        function prepararCertificado(event) {
+            showLoader('Gerando chaves de autenticação...');
+
+            setTimeout(() => {
+                hideLoader();
+            }, 4000);
+        }
+
+        function validarEnvioFlag(event) {
+            const endStr = "{{ end_time }}";
+            if (endStr) {
+                const eventEndTime = new Date(endStr).getTime();
+                const now = new Date().getTime();
+                
+                if (now > eventEndTime) {
+                    event.preventDefault();
+                    
+                    alert("SUBMISSÕES ENCERRADAS.");
+
+                    if (typeof hideLoader === "function") hideLoader(); 
+                    
+                    return false;
+                }
+            }
+
+            if (typeof showLoader === "function") showLoader('Analisando a flag...');
+            return true;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const tickets = document.querySelectorAll('.asyncx-alert-ticket');
+            
+            tickets.forEach(ticket => {
+
+                setTimeout(() => {
+                    ticket.style.opacity = "0";
+                    ticket.style.maxHeight = "0";
+                    ticket.style.margin = "0";
+                    ticket.style.padding = "0 20px";
+
+                    setTimeout(() => {
+                        ticket.remove();
+                    }, 500);
+                }, 4000);
+            });
+        });
+
+        function toggleModalVotacao(show) {
+            const modal = document.getElementById('modal-votacao-mvp');
+            if (modal) {
+                if (show) {
+                    modal.classList.remove('hidden-global');
+                } else {
+                    modal.classList.add('hidden-global');
+                }
+            }
+        }
+
+        function copiarLinkVotacao() {
+            const linkInput = document.getElementById('link-votacao-forms');
+            const btnCopiar = document.getElementById('btn-copiar-link');
+
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); 
+
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                const textoOriginal = btnCopiar.innerHTML;
+                btnCopiar.innerHTML = '✔️ LINK COPIADO COM SUCESSO!';
+                btnCopiar.style.background = '#4caf50'; 
+                btnCopiar.style.color = '#fff';
+
+                setTimeout(() => {
+                    btnCopiar.innerHTML = textoOriginal;
+                    btnCopiar.style.background = 'var(--yellow)';
+                    btnCopiar.style.color = '#000';
+                    window.getSelection().removeAllRanges();
+                }, 3000);
+            }).catch(err => {
+                console.error('Falha ao copiar o link: ', err);
+                alert('Erro ao copiar. Selecione o link manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>

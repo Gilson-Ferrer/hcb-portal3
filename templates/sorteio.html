@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorteio Oficial | AsyncX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --surface: #111111;
+            --card: #1e1e1e;
+            --card-inner: #141414;
+            --border: #2a2a2a;
+            --border-light: #333;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --text-dim: #555;
+            --cyan: #00bcd4;
+            --cyan-glow: rgba(0,188,212,0.15);
+            --green: #66bb6a;
+            --green-glow: rgba(102,187,106,0.15);
+            --red: #f44336;
+            --yellow: #f9e800;
+            --font-display: 'Orbitron', monospace;
+            --font-ui: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            background-image: url("{{ url_for('static', filename='img/background_sorteio.webp') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            font-family: var(--font-ui);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(10,10,10,0.82);
+            z-index: 0;
+        }
+
+        .header {
+            position: relative;
+            z-index: 10;
+            background: rgba(17,17,17,0.95);
+            border-bottom: 1px solid var(--border);
+            height: 70px;
+            display: grid;
+            grid-template-columns: 220px 1fr auto;
+            align-items: center;
+            padding: 0 1.5rem 0 0;
+            backdrop-filter: blur(8px);
+        }
+
+        .brand {
+            padding: 0 1.5rem;
+            border-right: 1px solid var(--border);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .brand-name span { 
+            color: var(--cyan);
+            font-style: italic; 
+        }
+
+        .brand-sub {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .header-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            margin-right: 130px;
+        }
+
+        .header-title {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--yellow);
+            letter-spacing: 2px;
+        }
+
+        .btn-back {
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back:hover { color: #fff; }
+
+        .stage {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            background: rgba(17,17,17,0.92);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 640px;
+            padding: 2.5rem 2.5rem 2rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+        }
+
+        .card-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .winner-display {
+            position: relative;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.8rem;
+            overflow: hidden;
+            transition: border-color 0.4s, box-shadow 0.4s;
+        }
+
+        .winner-display.rolling {
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px var(--cyan-glow), inset 0 0 30px rgba(0,188,212,0.04);
+        }
+
+        .winner-display.final {
+            border-color: var(--green);
+            box-shadow: 0 0 40px var(--green-glow), inset 0 0 40px rgba(102,187,106,0.05);
+        }
+
+        .winner-display::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            animation: scan 2s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .winner-display.rolling::after { opacity: 0.6; }
+
+        @keyframes scan {
+            0%   { top: -2px; }
+            100% { top: 100%; }
+        }
+
+        .display-label {
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .display-name {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 0 1rem;
+            transition: color 0.3s, transform 0.3s;
+            word-break: break-word;
+        }
+
+        .display-name.rolling { color: var(--cyan); }
+        .display-name.final   { color: var(--green); transform: scale(1.06); }
+
+        .controls { transition: opacity 0.3s; }
+        .controls.hidden { opacity: 0; pointer-events: none; }
+
+        .input-label {
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 110px;
+            transition: border-color 0.2s;
+        }
+
+        textarea::placeholder { color: var(--text-dim); }
+        textarea:focus { outline: none; border-color: var(--cyan); }
+
+        .counter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .counter {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .counter span {
+            color: var(--cyan);
+            font-weight: 700;
+        }
+
+        .btn-sortear {
+            width: 100%;
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            padding: 13px;
+            border-radius: 8px;
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-sortear:hover  { opacity: 0.88; }
+        .btn-sortear:active { transform: scale(0.98); }
+        .btn-sortear:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .result-actions {
+            display: none;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 0.4rem;
+        }
+
+        .result-actions.visible { display: flex; }
+
+        .btn-novo {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 11px;
+            border-radius: 8px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-novo:hover { border-color: var(--cyan); color: #fff; }
+
+        .footer-bar {
+            position: relative;
+            z-index: 10;
+            background: rgba(17,17,17,0.9);
+            border-top: 1px solid var(--border);
+            padding: 12px 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            backdrop-filter: blur(8px);
+        }
+
+        .footer-social { display: flex; gap: 12px; }
+        .footer-social a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+        .footer-social a:hover { color: var(--cyan); }
+
+        @keyframes confetti-pop {
+            0%   { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.4); }
+        }
+
+        .confetti-dot {
+            position: absolute;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: confetti-pop 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">
+            <div class="brand-name">Asyn<span>X</span></div>
+            <div class="brand-sub">Hackathon Challenge Box</div>
+        </div>
+        <div class="header-center">
+            <div class="header-subtitle">SORTEIO OFICIAL</div>
+        </div>
+        <div>
+            <a href="/" class="btn-back">← Voltar</a>
+        </div>
+    </div>
+
+    <div class="stage">
+        <div class="card">
+            <div class="card-title">SORTEIO DE PARTICIPANTES</div>
+            <div class="winner-display" id="display">
+                <div class="display-label" id="displayLabel">Aguardando início</div>
+                <div class="display-name" id="displayName">—</div>
+            </div>
+            <div class="controls" id="controls">
+                <div class="counter-row" style="justify-content: center; margin-bottom: 2rem;">
+                    <span class="counter" style="font-size: 1rem;">Participantes Validados: <span id="count" style="font-size: 1.2rem;">0</span></span>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-novo" id="btnSync" onclick="sincronizar()" style="flex: 1; border-color: var(--cyan); color: var(--cyan);">
+                        ATUALIZAR BANCO
+                    </button>
+                    <button class="btn-sortear" id="btnSortear" onclick="sortear()" style="flex: 2;" disabled>
+                        INICIAR SORTEIO
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-actions" id="resultActions">
+                <button class="btn-novo" onclick="resetar()">↩ Novo Sorteio</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const display      = document.getElementById('display');
+        const displayLabel = document.getElementById('displayLabel');
+        const displayName  = document.getElementById('displayName');
+        const controls     = document.getElementById('controls');
+        const resultActions= document.getElementById('resultActions');
+        const btnSortear   = document.getElementById('btnSortear');
+        const countEl      = document.getElementById('count');
+        const btnSync      = document.getElementById('btnSync');
+
+        let listaParticipantes = [];
+
+        async function sincronizar() {
+            btnSync.textContent = "Sincronizando...";
+            btnSync.style.opacity = "0.5";
+            
+            try {
+                const response = await fetch('/api/get_sorteio_lista');
+                const data = await response.json();
+                
+                listaParticipantes = data;
+                const n = listaParticipantes.length;
+                countEl.textContent = n;
+                btnSortear.disabled = n < 2;
+                
+                setTimeout(() => {
+                    btnSync.textContent = "ATUALIZADO";
+                    btnSync.style.opacity = "1";
+                }, 500);
+                
+            } catch (error) {
+                console.error("Erro ao puxar dados:", error);
+                btnSync.textContent = "Erro de Conexão";
+                btnSync.style.color = "red";
+            }
+        }
+
+        function sortear() {
+            if (listaParticipantes.length < 2) return;
+
+            controls.classList.add('hidden');
+            resultActions.classList.remove('visible');
+
+            display.className = 'winner-display rolling';
+            displayLabel.textContent = 'Sorteando Vencedor...';
+            displayName.className = 'display-name rolling';
+
+            const startTime = Date.now();
+            const totalDuration = 8000;
+            const slowdownAt    = 6000;
+
+            function step() {
+                const elapsed = Date.now() - startTime;
+
+                if (elapsed < totalDuration) {
+                    const r = listaParticipantes[Math.floor(Math.random() * listaParticipantes.length)];
+                    displayName.textContent = r;
+
+                    let delay = 40;
+                    if (elapsed > slowdownAt) {
+                        const progress = (elapsed - slowdownAt) / (totalDuration - slowdownAt);
+                        delay = 40 + Math.floor(progress * 260);
+                    }
+                    setTimeout(step, delay);
+                } else {
+                    const winner = listaParticipantes[Math.floor(Math.random() * listaParticipantes.length)];
+                    displayName.textContent = winner;
+                    displayName.className = 'display-name final';
+                    display.className = 'winner-display final';
+                    displayLabel.textContent = 'sorteado';
+                    spawnConfetti();
+
+                    setTimeout(() => {
+                        controls.classList.remove('hidden');
+                        resultActions.classList.add('visible');
+                    }, 3000);
+                }
+            }
+            step();
+        }
+
+        function resetar() {
+            display.className = 'winner-display';
+            displayLabel.textContent = 'Aguardando início';
+            displayName.textContent = '—';
+            displayName.className = 'display-name';
+            resultActions.classList.remove('visible');
+            controls.classList.remove('hidden');
+            btnSortear.disabled = true; 
+            btnSync.textContent = "Atualizar";
+            countEl.textContent = "0";
+            listaParticipantes = [];
+        }
+
+        function spawnConfetti() {
+            const colors = ['#00bcd4','#66bb6a','#f9e800','#fb8c00','#e53935','#8e24aa'];
+            for (let i = 0; i < 25; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'confetti-dot';
+                dot.style.cssText = `
+                    left: ${20 + Math.random() * 60}%;
+                    top: ${20 + Math.random() * 60}%;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation-delay: ${Math.random() * 0.3}s;
+                `;
+                display.appendChild(dot);
+                dot.addEventListener('animationend', () => dot.remove());
+            }
+        }
+
+        window.onload = sincronizar;
+    </script>
+</body>
+</html>

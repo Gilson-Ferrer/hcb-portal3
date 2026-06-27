@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ASYNCX | PLACAR</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --text-dim: #555;
+            --cyan: #00bcd4;
+            --red: #f44336;
+            --yellow-bright: #f9e800;
+            --font-display: 'Orbitron', monospace;
+            --font-ui: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            --cat-0: #e53935;
+            --cat-1: #fb8c00;
+            --cat-2: #1565c0;
+            --cat-3: #42a5f5;
+            --cat-4: #8d6e63;
+            --cat-5: #66bb6a;
+            --cat-6: #8e24aa;
+            --cat-7: #ef5350;
+            --cat-8: #388e3c;
+            --cat-9: #ff7043;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-ui);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #111;
+            border-bottom: 1px solid var(--border);
+            height: 80px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            gap: 1rem;
+        }
+
+        .brand {
+            border-right: 1px solid var(--border);
+            padding-right: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-shrink: 0; 
+        }
+
+        .brand-name {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .brand-name span { 
+            color: var(--cyan);
+            font-style: italic;
+        }
+
+        .brand-sub {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .header-center {
+            flex-grow: 1; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .event-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .timer {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 2px;
+        }
+
+        .btn-close {
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .btn-close:hover { color: var(--cyan); }
+
+        .matrix-wrapper {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 2px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+
+        .col-rank  { width: 36px; min-width: 36px; text-align: center; }
+        .col-team  { min-width: 180px; max-width: 240px; text-align: left; }
+        .col-score { width: 64px; min-width: 64px; text-align: center; }
+
+        thead th {
+            padding: 6px 3px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        thead tr:first-child th.cat-header {
+            font-family: var(--font-ui);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px 4px 0 0;
+            text-align: center;
+            padding: 6px 3px;
+        }
+
+        thead tr:last-child th.cat-num {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            border-radius: 0 0 2px 2px;
+            text-align: center;
+            width: 55px !important;
+            min-width: 55px !important;
+            max-width: 55px !important;
+            padding: 4px 0 !important; 
+        }
+
+        tbody td {
+            padding: 4px 0 !important; 
+            text-align: center;
+            border-radius: 3px;
+            font-size: 0.72rem;
+            transition: filter 0.15s;
+        }
+
+        tbody tr:hover td { filter: brightness(1.2); }
+
+        td.col-rank {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+        }
+
+        td.col-rank.top1 { color: #ffd700; }
+        td.col-rank.top2 { color: #c0c0c0; }
+        td.col-rank.top3 { color: #cd7f32; }
+
+        td.col-team {
+            padding-left: 12px !important;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            background: #1a1a1a;
+            border-radius: 4px;
+            position: sticky; 
+            left: 0; 
+            z-index: 2;
+        }
+
+        td.col-team .team-inst {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            font-weight: 400;
+            margin-top: 1px;
+        }
+
+        td.col-score {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--yellow-bright);
+            background: #1a1a1a;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        td.cell-solved, td.cell-unsolved {
+            width: 55px !important;
+            min-width: 55px !important;
+            max-width: 55px !important;
+        }
+
+        td.cell-solved   { opacity: 1;    color: #fff; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+        td.cell-unsolved { opacity: 0.22; color: #000; font-weight: 700; }
+
+        .footer-bar {
+            background: #111;
+            border-top: 1px solid var(--border);
+            padding: 14px 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .footer-social { display: flex; gap: 12px; }
+        .footer-social a { color: var(--text-dim); text-decoration: none; font-size: 1rem; transition: color .2s; }
+        .footer-social a:hover { color: var(--cyan); }
+
+        .sorteio-btn {
+            background: var(--cyan);
+            color: #111;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+        .sorteio-btn:hover { opacity: 0.75; }
+
+        @media (min-width: 1400px) {
+
+            .matrix-table {
+                font-size: 1rem; 
+                border-spacing: 4px;
+            }
+
+            .col-team { 
+                min-width: 280px !important;
+                max-width: none !important; 
+                font-size: 1.3rem !important;
+            }
+            .col-team .team-inst {
+                font-size: 0.85rem !important;
+                margin-top: 4px;
+            }
+
+            .col-score {
+                font-size: 1.3rem !important;
+                width: 90px !important;
+                min-width: 90px !important;
+            }
+
+            td.cell-solved, td.cell-unsolved, thead tr:last-child th.cat-num {
+                width: auto !important;
+                min-width: 75px !important;
+                max-width: none !important;
+                height: 48px !important;
+                font-size: 1.1rem !important;
+            }
+
+            thead tr:first-child th.cat-header {
+                font-size: 0.9rem !important;
+                padding: 10px 5px !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .header {
+                height: auto;
+                flex-direction: column;
+                padding: 1rem;
+                gap: 12px;
+                text-align: center;
+            }
+            .brand {
+                border-right: none;
+                padding-right: 0;
+                align-items: center;
+            }
+            .header-center {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .header style + div, .header > div:last-child {
+                width: 100%;
+                justify-content: center !important;
+                flex-wrap: wrap;
+            }
+
+            .matrix-wrapper {
+                padding: 0.5rem;
+                max-width: 100vw;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .matrix-table {
+                font-size: 0.65rem;
+            }
+
+            td.col-team {
+                position: sticky;
+                left: 0;
+                z-index: 10;
+                background: #111111 !important;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+                min-width: 120px !important;
+                max-width: 140px !important;
+            }
+
+            thead th.col-team {
+                position: sticky;
+                left: 0;
+                z-index: 11;
+                background: #111111 !important;
+            }
+
+            td.cell-solved, td.cell-unsolved, thead tr:last-child th.cat-num {
+                width: 32px !important;
+                min-width: 32px !important;
+                max-width: 32px !important;
+                font-size: 0.65rem;
+            }
+
+            .footer-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            body::before {
+                content: "SUGESTÃO: GIRE O DISPOSITIVO EM MODO PAISAGEM PARA UMA VISÃO COMPLETA.";
+                display: block;
+                background: rgba(0, 188, 212, 0.15);
+                border-bottom: 1px solid var(--cyan);
+                color: var(--cyan);
+                font-family: var(--mono);
+                font-size: 0.7rem;
+                font-weight: bold;
+                text-align: center;
+                padding: 8px 10px;
+                letter-spacing: 1px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            body::before { display: none !important; }
+        }
+
+    </style>
+
+    {% set cat_colors = ['#e53935','#fb8c00','#1565c0','#42a5f5','#8d6e63','#66bb6a','#8e24aa','#ef5350','#388e3c','#ff7043'] %}
+    {% set cat_order = namespace(list=[]) %}
+    {% for c in all_challenges %}
+        {% if c.category not in cat_order.list %}
+            {% set cat_order.list = cat_order.list + [c.category] %}
+        {% endif %}
+    {% endfor %}
+
+    <style>
+        {% for cat in cat_order.list %}
+            {% set i = loop.index0 %}
+            {% set color = cat_colors[i] if i < cat_colors|length else '#607d8b' %}
+            .cat-bg-{{ i }}        { background-color: {{ color }}; }
+            .cat-header-{{ i }}    { background: {{ color }}; color: {% if i in [1,3,5] %}#111{% else %}#fff{% endif %}; }
+            .cat-num-{{ i }}       { background: {{ color }}33; color: {{ color }}; }
+        {% endfor %}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">
+            <div class="brand-name">Asyn<span>X</span></div>
+            <div class="brand-sub">Hackathon Challenge Box</div>
+        </div>
+
+        <div class="header-center">
+            <span class="event-label" id="event-label">Status do Evento</span>
+            <div class="timer" id="countdown"></div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="btn-abrir-sorteio" onclick="toggleModalGlobal(true)" class="sorteio-btn">
+                PREMIO EXCLUSIVO
+            </button>
+            <a href="/" class="btn-close">Fechar</a>
+        </div>
+    </div>
+
+    <div class="matrix-wrapper">
+        
+        {# 1. BLINDAGEM MÁXIMA: Forçamos a ordenação e agrupamento dos desafios por categoria aqui mesmo no HTML #}
+        {% set ordered_challs = namespace(items=[]) %}
+        {% for cat in cat_order.list %}
+            {% for c in all_challenges %}
+                {% if c.category == cat %}
+                    {% set ordered_challs.items = ordered_challs.items + [c] %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {# 2. Recalculamos os índices com a lista perfeitamente agrupada #}
+        {% set cat_index  = {} %}
+        {% set cat_counts = {} %}
+        {% for c in ordered_challs.items %}
+            {% if c.category not in cat_index %}
+                {% set _ = cat_index.update({c.category: cat_index|length}) %}
+                {% set _ = cat_counts.update({c.category: 0}) %}
+            {% endif %}
+            {% set _ = cat_counts.update({c.category: cat_counts[c.category] + 1}) %}
+        {% endfor %}
+
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th class="col-rank"  style="background:transparent;"></th>
+                    <th class="col-team"  style="background:transparent; padding-left:12px; color:var(--text-muted); font-family:var(--font-ui); font-size:0.7rem;">TIME</th>
+                    <th class="col-score" style="background:transparent; color:var(--text-muted); font-family:var(--font-ui); font-size:0.7rem;">TOTAL</th>
+                    
+                    {% for cat_name in cat_order.list %}
+                        <th class="cat-header cat-header-{{ cat_index[cat_name] }}" colspan="{{ cat_counts[cat_name] }}">
+                            {# A MÁGICA ESTÁ AQUI: A div controla o texto, o TH respeita o colspan das colunas #}
+                            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">
+                                {{ cat_name }}
+                            </div>
+                        </th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th class="col-rank"  style="background:transparent;"></th>
+                    <th class="col-team"  style="background:transparent;"></th>
+                    <th class="col-score" style="background:transparent;"></th>
+                    
+                    {% for c in ordered_challs.items %}
+                        <th class="cat-num cat-num-{{ cat_index[c.category] }}" style="min-width:28px;">{{ loop.index }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for team in all_teams %}
+                    {% set team_solves = solves_matrix.get(team.id, []) %}
+                    <tr>
+                        <td class="col-rank{% if loop.index == 1 %} top1{% elif loop.index == 2 %} top2{% elif loop.index == 3 %} top3{% endif %}">
+                            {{ loop.index }}
+                        </td>
+                        <td class="col-team">
+                            {{ team.name }}
+                            {% if team.institution %}<span class="team-inst">{{ team.institution }}</span>{% endif %}
+                        </td>
+                        <td class="col-score">
+                            {{ team.score }}
+                        </td>
+                        
+                        {% for c in ordered_challs.items %}
+                            {% set solved = c.id in team_solves %}
+                            <td class="cat-bg-{{ cat_index[c.category] }} {% if solved %}cell-solved{% else %}cell-unsolved{% endif %}">
+                                {{ '✔' if solved else '·' }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-bar">
+        <span>Asyncx Tecnologia - Todos os direitos reservados</span>
+        <div class="footer-social" style="display: flex; gap: 15px; align-items: center;">
+            <span>Linkedin </span>       
+            <a href="https://www.linkedin.com/company/asyncxtecnologia" target="_blank" title="Siga a AsyncX no LinkedIn" 
+               style="color: var(--text-dim); display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;"
+               onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-dim)'">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: currentColor;"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.8v8.37h2.8v-4.67c0-.25.06-.5.14-.69a1.16 1.16 0 0 1 1.07-.77c.75 0 1 .57 1 1.41v4.72h2.8M6.5 8.37a1.37 1.37 0 1 0 0-2.75 1.37 1.37 0 0 0 0 2.75M8 18.5V10.13H5.2v8.37H8z"/></svg>
+            </a>
+        </div>
+    </div>
+    {% include 'modal_sorteio.html' %}
+    {% include 'loader_global.html' %}
+    
+    <script>
+
+    const startStr = "{{ start_time }}";
+    const endStr = "{{ end_time }}";
+    
+    const eventStartTime = startStr ? new Date(startStr).getTime() : null;
+    const eventEndTime = new Date(endStr).getTime();
+    
+    const display = document.getElementById('countdown');
+    const label = document.getElementById('event-label');
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const limitTimeSorteio = eventEndTime + (48 * 60 * 60 * 1000); 
+        const btnAbrirSorteio = document.getElementById('btn-abrir-sorteio');
+        
+        if (btnAbrirSorteio && now > limitTimeSorteio) {
+            btnAbrirSorteio.textContent = "INSCRIÇÕES ENCERRADAS";
+            btnAbrirSorteio.style.opacity = "0.4";
+            btnAbrirSorteio.style.cursor = "not-allowed";
+            btnAbrirSorteio.onclick = null; 
+        }
+
+        if (eventStartTime && now < eventStartTime) {
+            const distance = eventStartTime - now;
+            label.textContent = "O EVENTO INICIA EM:";
+            display.style.color = "#00e5ff"; 
+            renderTime(distance);
+            return;
+        }
+
+        const distanceToEnd = eventEndTime - now;
+
+        if (distanceToEnd < 0) {
+            label.textContent = "EVENTO";
+            display.textContent = "ENCERRADO"; 
+            display.style.color = "#f44336"; 
+            return;
+        }
+
+        label.textContent = "TEMPO RESTANTE:";
+        display.style.color = ""; 
+        renderTime(distanceToEnd);
+    }
+
+    function renderTime(distance) {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        display.textContent = (days > 0 ? days + "d " : "") +
+            String(hours).padStart(2, '0') + ':' +
+            String(minutes).padStart(2, '0') + ':' +
+            String(seconds).padStart(2, '0');
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer(); 
+    </script>
+</body>
+</html>

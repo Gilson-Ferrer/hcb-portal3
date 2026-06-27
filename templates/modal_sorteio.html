@@ -1,0 +1,277 @@
+<style>
+    .modal-overlay-global {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content-global {
+        background: #161616;
+        border: 1px solid #262626;
+        padding: 40px;
+        border-radius: 8px;
+        max-width: 480px;
+        width: 90%;
+        position: relative;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+    .modal-title-global {
+        font-family: 'Rajdhani', sans-serif;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-align: center;
+    }
+    .modal-rules-global {
+        font-family: 'Rajdhani', sans-serif;
+        color: #b3b3b3;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    .modal-rules-global b {
+        color: #fff;
+    }
+    .modal-highlight-text-global {
+        color: #00bcd4;
+        font-family: 'Share Tech Mono', monospace;
+        font-weight: bold;
+    }
+    .modal-btn-global {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .btn-primary-global {
+        background: #00bcd4;
+        color: #000;
+    }
+    .btn-primary-global:hover:not(:disabled) {
+        background: #00acc1;
+        box-shadow: 0 0 15px rgba(0, 188, 212, 0.4);
+    }
+
+    .btn-primary-global:disabled {
+        background: #333333;
+        color: #666666;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .btn-secondary-global {
+        background: #222222;
+        color: #888888;
+        border: 1px solid #2d2d2d;
+    }
+    .btn-secondary-global:hover {
+        background: #2a2a2a;
+        color: #eeeeee;
+    }
+    .btn-success-global {
+        background: #4caf50;
+        color: #fff;
+    }
+    .btn-success-global:hover {
+        background: #43a047;
+    }
+    .hidden-global { display: none !important; }
+
+    .success-icon-wrapper-global {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .success-svg-global {
+        width: 56px;
+        height: 56px;
+        stroke: #4caf50;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .lgpd-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+        text-align: left;
+        background: rgba(0, 188, 212, 0.05);
+        padding: 12px;
+        border: 1px solid rgba(0, 188, 212, 0.2);
+        border-radius: 6px;
+    }
+    .lgpd-container input[type="checkbox"] {
+        margin-top: 3px;
+        accent-color: #00bcd4;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+    .lgpd-container label {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.8rem;
+        color: #aaa;
+        line-height: 1.4;
+        cursor: pointer;
+    }
+    .lgpd-link {
+        color: #00bcd4;
+        text-decoration: none;
+        font-weight: 700;
+        transition: color 0.2s;
+    }
+    .lgpd-link:hover {
+        color: #00acc1;
+        text-decoration: underline;
+    }
+</style>
+
+<div id="modal-regras-global" class="modal-overlay-global hidden-global">
+    <div class="modal-content-global">
+        <h2 class="modal-title-global">Sorteio Exclusivo</h2>
+        <div class="modal-rules-global">
+            <p style="margin-bottom: 12px;">
+                1. Siga o perfil oficial da 
+                <a href="https://www.linkedin.com/company/asyncxtecnologia" target="_blank" style="color: var(--cyan); text-decoration: none; transition: 0.2s;" onmouseover="this.style.textShadow='0 0 8px var(--cyan)'" onmouseout="this.style.textShadow='none'">
+                    <b>Asyncx Tecnologia</b>.
+                </a> no Linkedin.
+            </p>
+            <p style="margin-bottom: 12px;">2. Publique uma foto no evento, e no texto do post marque a página com <b>@Asyncx</b>, selecionando a nossa página com o logo oficial, e insira a hashtag <span class="modal-highlight-text-global" id="hashtag-rule">#HackathonAsyncx{{ start_time[:4] if start_time else '' }}</span>.</p>
+            <p>3. Insira suas credenciais abaixo para registrar seu perfil e participar do sorteio.</p>
+        </div>
+        
+        <form id="form-sorteio-global" onsubmit="enviarInscricaoGlobal(event)" style="margin-top: 24px;">
+            <input type="text" name="nome" placeholder="Nome e Sobrenome" required maxlength="60"
+                   style="width: 100%; padding: 12px 14px; border-radius: 4px; border: 1px solid #2d2d2d; background: #0f0f0f; color: #fff; margin-bottom: 12px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s;"
+                   onfocus="this.style.borderColor='#00bcd4'" onblur="this.style.borderColor='#2d2d2d'">
+            
+            <input type="text" name="arroba" id="input-arroba-global" placeholder="Seu @perfil do LinkedIn" required maxlength="30"
+                   oninput="this.value = this.value.replace(/[^a-zA-Z0-9._@\-]/g, '')"
+                   style="width: 100%; padding: 12px 14px; border-radius: 4px; border: 1px solid #2d2d2d; background: #0f0f0f; color: #fff; margin-bottom: 15px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s;"
+                   onfocus="this.style.borderColor='#00bcd4'" onblur="this.style.borderColor='#2d2d2d'">
+            
+            <div class="lgpd-container">
+                <input type="checkbox" id="check-lgpd" name="lgpd_agree" required onchange="validarTermos()">
+                <label for="check-lgpd">
+                    Li e concordo com os <a href="{{ url_for('static', filename='materials/termos_asyncx.pdf') }}" target="_blank" class="lgpd-link">Termos de Uso e Política de Privacidade</a>, autorizando o uso dos meus dados para validação do sorteio e recebimento de comunicações futuras da AsyncX Academy.
+                </label>
+            </div>
+
+            <button type="submit" id="btn-enviar-global" class="modal-btn-global btn-primary-global" style="margin-bottom: 10px;" disabled>
+                Confirmar Inscrição
+            </button>
+            <button type="button" onclick="toggleModalGlobal(false)" class="modal-btn-global btn-secondary-global">
+                Cancelar
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="modal-sucesso-global" class="modal-overlay-global hidden-global">
+    <div class="modal-content-global" style="text-align: center;">
+        
+        <div class="success-icon-wrapper-global">
+            <svg class="success-svg-global" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="#4caf50" stroke-width="1.5" />
+                <path d="M8 12l3 3 5-5" stroke="#4caf50" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        
+        <h2 class="modal-title-global" style="margin-bottom: 16px; text-align: center;">Inscrição Realizada</h2>
+        
+        <div class="modal-rules-global" style="margin-bottom: 24px; text-align: center;">
+            <p>Seu perfil foi injetado com sucesso na base de dados da roleta.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #888;">Certifique-se de manter o post público com a hashtag <span class="modal-highlight-text-global" id="hashtag-success">#HackathonAsyncx{{ start_time[:4] if start_time else '' }}</span> para a validação do prêmio ao vivo.</p>
+        </div>
+
+        <button onclick="fecharSucessoGlobal()" class="modal-btn-global btn-success-global">
+            Concluir
+        </button>
+    </div>
+</div>
+
+<script>
+
+    (function configurarHashtagDinamica() {
+        const anoInjetado = "{{ start_time[:4] if start_time else '' }}";
+        const anoFinal = anoInjetado || new Date().getFullYear();
+        
+        const textRule = document.getElementById('hashtag-rule');
+        const textSuccess = document.getElementById('hashtag-success');
+        
+        if (textRule && !textRule.textContent.includes(anoFinal)) textRule.textContent += anoFinal;
+        if (textSuccess && !textSuccess.textContent.includes(anoFinal)) textSuccess.textContent += anoFinal;
+    })();
+
+    function validarTermos() {
+        const checkbox = document.getElementById('check-lgpd');
+        const btn = document.getElementById('btn-enviar-global');
+        btn.disabled = !checkbox.checked;
+    }
+
+    function toggleModalGlobal(show) {
+        const modal = document.getElementById('modal-regras-global');
+        if (modal) modal.classList.toggle('hidden-global', !show);
+
+        if (show) {
+            document.getElementById('form-sorteio-global').reset();
+            validarTermos();
+        }
+    }
+
+    function fecharSucessoGlobal() {
+        const modal = document.getElementById('modal-sucesso-global');
+        if (modal) modal.classList.add('hidden-global');
+    }
+
+    async function enviarInscricaoGlobal(event) {
+        event.preventDefault();
+        const form = event.target;
+        const btn = document.getElementById('btn-enviar-global');
+        const originalText = btn.textContent;
+        
+        btn.textContent = 'PROCESSANDO...';
+        btn.disabled = true;
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/participar_sorteio', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.status === 'success') {
+                toggleModalGlobal(false);
+                document.getElementById('modal-sucesso-global').classList.remove('hidden-global');
+                form.reset();
+            } else {
+                alert('Erro: ' + (result.message || 'Falha ao registrar dados.'));
+
+                validarTermos();
+            }
+        } catch (error) {
+            alert('Erro crítico: Falha na comunicação com a infraestrutura central.');
+            validarTermos();
+        } finally {
+            btn.textContent = originalText;
+        }
+    }
+</script>

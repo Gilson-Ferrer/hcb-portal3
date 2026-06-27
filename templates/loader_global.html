@@ -1,0 +1,85 @@
+<style>
+    .asyncx-loader-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(5, 5, 5, 0.92);
+        backdrop-filter: blur(8px);
+        z-index: 999999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .asyncx-loader-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .asyncx-loader-track {
+        width: 240px;
+        height: 2px;
+        background: #1a1a1a;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .asyncx-loader-scan {
+        position: absolute;
+        top: 0; left: -50%;
+        width: 50%;
+        height: 100%;
+        background: #00bcd4;
+        box-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4;
+        animation: asyncx-scan 1.2s infinite cubic-bezier(0.8, 0, 0.2, 1);
+    }
+
+    .asyncx-loader-text {
+        font-family: 'Share Tech Mono', monospace;
+        color: #00bcd4;
+        font-size: 0.85rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        animation: asyncx-pulse-text 1.5s infinite;
+    }
+
+    @keyframes asyncx-scan {
+        0% { left: -50%; }
+        100% { left: 100%; }
+    }
+
+    @keyframes asyncx-pulse-text {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+</style>
+
+<div id="global-loader" class="asyncx-loader-overlay">
+    <div class="asyncx-loader-track">
+        <div class="asyncx-loader-scan"></div>
+    </div>
+    <div id="global-loader-text" class="asyncx-loader-text">ESTABELECENDO CONEXÃO...</div>
+</div>
+
+<script>
+
+    function showLoader(mensagem = "PROCESSANDO DADOS...") {
+        const loader = document.getElementById('global-loader');
+        const textElement = document.getElementById('global-loader-text');
+        if (loader && textElement) {
+            textElement.textContent = mensagem;
+            loader.classList.add('active');
+        }
+    }
+
+    function hideLoader() {
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+            loader.classList.remove('active');
+        }
+    }
+</script>
