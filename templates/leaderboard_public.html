@@ -58,6 +58,19 @@
             gap: 1rem;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .timer-mobile,
+        .hamburger-btn,
+        .mobile-dropdown-menu {
+            display: none !important;
+        }
+
         .brand {
             border-right: 1px solid var(--border);
             padding-right: 1.5rem;
@@ -304,26 +317,93 @@
         }
 
         @media (max-width: 900px) {
+
             .header {
-                height: auto;
-                flex-direction: column;
-                padding: 1rem;
-                gap: 12px;
-                text-align: center;
+                height: 70px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 0 15px !important;
+                gap: 0 !important;
             }
+
+            .brand { border-right: none !important; padding-right: 0 !important; }
+
+            .header-center,
+            .header-actions-desktop {
+                display: none !important;
+            }
+
+            .timer-mobile {
+                display: inline-flex !important;
+                position: absolute !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                font-family: var(--font-display);
+                font-size: 0.95rem !important;
+                font-weight: 700 !important;
+                color: var(--red);
+                padding: 4px 8px;
+                white-space: nowrap;
+            }
+
+            .hamburger-btn {
+                display: flex !important;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 5px;
+            }
+
+            .mobile-dropdown-menu {
+                display: none !important;
+                position: absolute;
+                top: 75px;
+                right: 15px;
+                background: rgba(22, 22, 22, 0.96);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid #333;
+                border-radius: 8px;
+                padding: 15px;
+                width: 220px;
+                flex-direction: column;
+                gap: 12px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+                z-index: 2000;
+            }
+
+            .mobile-dropdown-menu.menu-open {
+                display: flex !important;
+                animation: fadeInDropdown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+
+            @keyframes fadeInDropdown {
+                0% { opacity: 0; transform: translateY(-10px) scale(0.97); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            .mobile-dropdown-menu .sorteio-btn,
+            .mobile-dropdown-menu .btn-close {
+                width: 100% !important;
+                text-align: center;
+                padding: 12px !important;
+                font-size: 0.9rem !important;
+                display: block;
+                margin: 0 !important;
+            }
+
+            .mobile-dropdown-menu .btn-close {
+                background: #222 !important;
+                border: 1px solid #333 !important;
+                color: #fff !important;
+            }
+
             .brand {
                 border-right: none;
                 padding-right: 0;
                 align-items: center;
-            }
-            .header-center {
-                flex-direction: column;
-                gap: 5px;
-            }
-            .header style + div, .header > div:last-child {
-                width: 100%;
-                justify-content: center !important;
-                flex-wrap: wrap;
             }
 
             .matrix-wrapper {
@@ -367,21 +447,6 @@
                 text-align: center;
                 padding: 1rem;
             }
-
-            body::before {
-                content: "MODO PAISAGEM PARA VISÃO COMPLETA";
-                display: block;
-                background: rgba(0, 188, 212, 0.15);
-                border-bottom: 1px solid var(--cyan);
-                color: var(--cyan);
-                font-family: var(--mono);
-                font-size: 0.7rem;
-                font-weight: bold;
-                text-align: center;
-                padding: 8px 10px;
-                letter-spacing: 1px;
-                width: 100%;
-            }
         }
 
         @media (max-width: 768px) and (orientation: landscape) {
@@ -411,18 +476,37 @@
 <body>
 
     <div class="header">
-        <div class="brand">
-            <div class="brand-name">Asyn<span>X</span></div>
-            <div class="brand-sub">Hackathon Challenge Box</div>
+        
+        <div class="header-left">
+            <div class="brand">
+                <div class="brand-name">Asyn<span>X</span></div>
+                <div class="brand-sub">Hackathon</div>
+            </div>
+            
         </div>
-
+        <div id="countdown-mobile" class="timer-mobile"></div>
         <div class="header-center">
             <span class="event-label" id="event-label">Status do Evento</span>
             <div class="timer" id="countdown"></div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="btn-abrir-sorteio" onclick="toggleModalGlobal(true)" class="sorteio-btn">
+        <div class="header-actions-desktop" style="display: flex; align-items: center; gap: 15px;">
+            <button id="btn-abrir-sorteio" onclick="toggleModalGlobal(true)" class="sorteio-btn desktop-only-btn">
+                PREMIO EXCLUSIVO
+            </button>
+            <a href="/" class="btn-close desktop-only-btn">Fechar</a>
+        </div>
+
+        <button class="hamburger-btn" onclick="toggleMobileMenu()">
+            <svg viewBox="0 0 24 24" width="26" height="26" stroke="var(--cyan)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="mobile-dropdown-menu" id="mobile-menu">
+            <button onclick="toggleModalGlobal(true); toggleMobileMenu();" class="sorteio-btn">
                 PREMIO EXCLUSIVO
             </button>
             <a href="/" class="btn-close">Fechar</a>
@@ -522,6 +606,19 @@
     
     <script>
 
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        if (menu) menu.classList.toggle('menu-open');
+    }
+
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('mobile-menu');
+        const hamburger = document.querySelector('.hamburger-btn');
+        if (menu && menu.classList.contains('menu-open') && !menu.contains(event.target) && !hamburger.contains(event.target)) {
+            menu.classList.remove('menu-open');
+        }
+    });
+
     const startStr = "{{ start_time }}";
     const endStr = "{{ end_time }}";
     
@@ -570,11 +667,18 @@
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        display.textContent = (days > 0 ? days + "d " : "") +
+
+        const timeString = days + "d " +
             String(hours).padStart(2, '0') + ':' +
             String(minutes).padStart(2, '0') + ':' +
             String(seconds).padStart(2, '0');
+
+        display.textContent = timeString;
+
+        const mobileTimer = document.getElementById("countdown-mobile");
+        if (mobileTimer) {
+            mobileTimer.textContent = timeString;
+        }
     }
 
     setInterval(updateTimer, 1000);

@@ -1,17 +1,13 @@
 import os
 import io
-import time
 import uuid
-import html
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from flask import Flask, render_template, request, redirect, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, send_file
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from flask import send_file, jsonify, request, session
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, landscape
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'asyncx_h4ck_loc4l_key')
@@ -545,4 +541,4 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)
