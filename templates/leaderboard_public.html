@@ -633,6 +633,8 @@
         const limitTimeSorteio = eventEndTime + (48 * 60 * 60 * 1000); 
         const btnAbrirSorteio = document.getElementById('btn-abrir-sorteio');
         
+        const mobileTimer = document.getElementById("countdown-mobile");
+
         if (btnAbrirSorteio && now > limitTimeSorteio) {
             btnAbrirSorteio.textContent = "INSCRIÇÕES ENCERRADAS";
             btnAbrirSorteio.style.opacity = "0.4";
@@ -644,6 +646,7 @@
             const distance = eventStartTime - now;
             label.textContent = "O EVENTO INICIA EM:";
             display.style.color = "#00e5ff"; 
+            if (mobileTimer) mobileTimer.style.color = "#00e5ff";
             renderTime(distance);
             return;
         }
@@ -654,11 +657,17 @@
             label.textContent = "EVENTO";
             display.textContent = "ENCERRADO"; 
             display.style.color = "#f44336"; 
+
+            if (mobileTimer) {
+                mobileTimer.textContent = "ENCERRADO";
+                mobileTimer.style.color = "#f44336";
+            }
             return;
         }
 
         label.textContent = "TEMPO RESTANTE:";
         display.style.color = ""; 
+        if (mobileTimer) mobileTimer.style.color = "";
         renderTime(distanceToEnd);
     }
 
