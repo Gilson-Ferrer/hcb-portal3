@@ -1632,7 +1632,6 @@
 
     <!-- MODAL: Vídeos -->
     <div id="modalVideo" class="modal" style="display: none;">
-        
         <div class="modal-content" style="max-width: 800px; background: transparent; border: none; box-shadow: none; padding: 0;">
             
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px;">
@@ -1644,24 +1643,7 @@
                 <div id="yt-player-container"></div>
             </div>
 
-            <div class="custom-controls" style="padding: 0 5px;">
-                
-                <button class="btn-icon" onclick="asyncxPlay()" title="Iniciar Transmissão">
-                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </button>
-                
-                <button class="btn-icon" onclick="asyncxPause()" title="Pausar Transmissão">
-                    <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                </button>
-                
-                <button class="btn-icon" onclick="asyncxFullscreen()" title="Expandir Ecrã">
-                    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                </button>
-                
-                <div class="feed-status">STATUS: <span style="color: var(--green-bright); animation: pulse 2s infinite;">CONECTADO</span></div>
             </div>
-
-        </div>
     </div>
 
     <!-- MODAL: Avatar -->
@@ -2037,9 +2019,9 @@
                 videoId: videoId,
                 playerVars: {
                     'autoplay': 1,        
-                    'controls': 0,        
-                    'disablekb': 1,       
-                    'fs': 1,              
+                    'controls': 1,
+                    'disablekb': 0,
+                    'fs': 1,
                     'modestbranding': 1,  
                     'rel': 0              
                 },
@@ -2049,22 +2031,6 @@
                     }
                 }
             });
-        }
-
-        function asyncxPlay() { if(asyncxPlayer && asyncxPlayer.playVideo) asyncxPlayer.playVideo(); }
-        function asyncxPause() { if(asyncxPlayer && asyncxPlayer.pauseVideo) asyncxPlayer.pauseVideo(); }
-
-        function asyncxFullscreen() {
-            var playerIframe = document.getElementById('yt-player-container');
-            if (playerIframe) {
-                if (playerIframe.requestFullscreen) {
-                    playerIframe.requestFullscreen();
-                } else if (playerIframe.webkitRequestFullscreen) { 
-                    playerIframe.webkitRequestFullscreen();
-                } else if (playerIframe.msRequestFullscreen) {
-                    playerIframe.msRequestFullscreen();
-                }
-            }
         }
 
         function closeVideoModal() {
