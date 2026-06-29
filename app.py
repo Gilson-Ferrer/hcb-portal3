@@ -2,6 +2,7 @@ import os
 import io
 import uuid
 import psycopg2
+import math
 from psycopg2.extras import RealDictCursor
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, send_file
 from datetime import datetime, timedelta
@@ -298,7 +299,6 @@ def update_avatar():
     session['team_avatar'] = avatar_name    
     return jsonify({"success": True})
 
-
 @app.route('/generate_certificate', methods=['POST'])
 def generate_certificate():
     if 'team_id' not in session:
@@ -318,10 +318,6 @@ def generate_certificate():
     if not event:
         return "Evento não configurado", 404
 
-    # =========================================================================
-    # BLOQUEIO TEMPORAL CERTIFICADO
-    # =========================================================================
-
     fuso_br = ZoneInfo('America/Sao_Paulo')
     agora = datetime.now(fuso_br)
     end_time_banco = event['end_time'].replace(tzinfo=fuso_br)
@@ -332,24 +328,36 @@ def generate_certificate():
     event_title = event['name']                           
     inst_name = INSTITUTION_NAME                          
     
+    start_date = event['start_time']
     end_date = event['end_time']
-    start_date = end_date - timedelta(days=2) 
-    
-    # --- DICIONÁRIO DE TRADUÇÃO DOS MESES  ---
+
+    diferenca_tempo = end_date - start_date
+    total_horas = diferenca_tempo.total_seconds() / 3600.0
+
+    dias_evento = math.ceil(total_horas / 24.0)
+
+    if dias_evento < 1:
+        dias_evento = 1
+
+    carga_horaria_dinamica = dias_evento * 4
 
     meses_pt = {
-            1: "janeiro", 2: "fevereiro", 3: "março", 4: "abril",
-            5: "maio", 6: "junho", 7: "julho", 8: "agosto",
-            9: "setembro", 10: "outubro", 11: "novembro", 12: "dezembro"
-        }
+        1: "janeiro", 2: "fevereiro", 3: "março", 4: "abril",
+        5: "maio", 6: "junho", 7: "julho", 8: "agosto",
+        9: "setembro", 10: "outubro", 11: "novembro", 12: "dezembro"
+    }
 
-    month_name = meses_pt.get(end_date.month)
-    year_name = end_date.strftime('%Y')
-
-    date_range_str = f"no período de {start_date.day} a {end_date.day} de {month_name} de {year_name}"
+    if start_date.year != end_date.year:
+        date_range_str = f"no período de {start_date.day} de {meses_pt.get(start_date.month)} de {start_date.year} a {end_date.day} de {meses_pt.get(end_date.month)} de {end_date.year}"
+    elif start_date.month != end_date.month:
+        date_range_str = f"no período de {start_date.day} de {meses_pt.get(start_date.month)} a {end_date.day} de {meses_pt.get(end_date.month)} de {end_date.year}"
+    elif start_date.day != end_date.day:
+        date_range_str = f"no período de {start_date.day} a {end_date.day} de {meses_pt.get(end_date.month)} de {end_date.year}"
+    else:
+        date_range_str = f"no dia {end_date.day} de {meses_pt.get(end_date.month)} de {end_date.year}"
 
     # =========================================================================
-    # VERIFICAÇÃO/GERAÇÃO DO HASH ÚNICO E REGISTRO DE AUTENTICIDADE
+    # VERIFICAÇÃO DO HASH E REGISTRO DE AUTENTICIDADE
     # =========================================================================
     conn = get_db()
     cur_cert = conn.cursor()
@@ -380,8 +388,9 @@ def generate_certificate():
     finally:
         cur_cert.close()
         conn.close()
+
     # =========================================================================
-    # LEITURA DINÂMICA DAS DIMENSÕES DO CERTIFICADO
+    # LEITURA DAS DIMENSÕES DO CERTIFICADO
     # =========================================================================
     template_path = os.path.join(app.root_path, 'static', 'materials', 'certificate_background.pdf')
     
@@ -394,14 +403,10 @@ def generate_certificate():
     bg_width = float(page.mediabox.width)
     bg_height = float(page.mediabox.height)
     center_x = bg_width / 2.0
-
-    # =========================================================================
-    # RENDERIZAÇÃO DA TIPOGRAFIA BASE
-    # =========================================================================
     packet = io.BytesIO()
     can = canvas.Canvas(packet, pagesize=(bg_width, bg_height))
     
-    # --- CONFIGURAÇÃO DO NOME DO ALUNO ---
+    # --- CONFIGURAÇÃO DO NOME ---
     can.setFont("Helvetica-Bold", 20)                   
     can.setFillColorRGB(0, 0, 0)                          
     
@@ -415,8 +420,8 @@ def generate_certificate():
 
     texto_linha1 = f"Concluiu com êxito os desafios propostos pelo evento"
     texto_linha2 = f"{event_title}, realizada na instituição {inst_name},"
-    texto_linha3 = f"{date_range_str}, cumprindo integralmente uma carga horária"
-    texto_linha4 = f"de 12 horas de desafios práticos de Programação e Cibersegurança."
+    texto_linha3 = f"{date_range_str}, cumprindo uma carga horária"
+    texto_linha4 = f"de {carga_horaria_dinamica} horas de desafios práticos de Programação e Cibersegurança."
 
     pos_y_texto_inicial = bg_height * 0.50
     can.drawCentredString(center_x, pos_y_texto_inicial, texto_linha1)
@@ -424,7 +429,7 @@ def generate_certificate():
     can.drawCentredString(center_x, pos_y_texto_inicial - 50, texto_linha3)
     can.drawCentredString(center_x, pos_y_texto_inicial - 75, texto_linha4)
     
-    # --- INJEÇÃO DA VALIDAÇÃO E HASH NO RODAPÉ ---
+    # --- INJEÇÃO DA VALIDAÇÃO E HASH  ---
     can.setFont("Helvetica-Bold", 10)
     can.setFillColorRGB(0.4, 0.4, 0.4)
     
@@ -437,7 +442,7 @@ def generate_certificate():
     packet.seek(0)
 
     # =========================================================================
-    # COMPILAÇÃO DO ARQUIVO DISPARO DE DOWNLOAD
+    # COMPILAÇÃO DO ARQUIVO 
     # =========================================================================
     try:
         new_pdf = PdfReader(packet)
